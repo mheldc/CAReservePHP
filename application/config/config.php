@@ -23,7 +23,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = '';
+$_url = '';
+
+if(isset($_SERVER['HTTPS'])){ $_url = 'https://'.$_SERVER['SERVER_NAME']; } else { $_url = 'http://'.$_SERVER['SERVER_NAME']; }
+if($_SERVER['SERVER_PORT'] !== 80){$_url .= ':'.$_SERVER['SERVER_PORT'].$_SERVER['SCRIPT_NAME'];} else {$_url .= $_SERVER['SCRIPT_NAME'];}
+
+$_url = str_replace('index.php/','',$_url);
+
+$config['base_url'] = $_url;
+
+$config['assets'] = str_replace('index.php/','',$_url);
 
 /*
 |--------------------------------------------------------------------------

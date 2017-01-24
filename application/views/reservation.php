@@ -1,7 +1,6 @@
 <?php
 	defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
@@ -15,31 +14,7 @@
                     <a href="#">Reservation</a>
                 </li>
                 <li>
-                    <a href="#">Booking</a>
-                </li>
-                <li>
-                    <a href="#">Inventory</a>
-                </li>
-                <li>
-                    <a href="#">Users</a>
-                </li>
-				<li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Setup &nbsp;<span class="caret"></span></a>
-					<ul class="dropdown-menu inverse-dropdown" aria-labelledby="dropdownMenu1">
-						<li><a href="#">Rooms</a></li>
-						<li><a href="#">Tools and Utilities</a></li>
-						<li><a href="#">Promos</a></li>
-						<!--
-						<li role="separator" class="divider"></li>
-						<li><a href="#">Separated link</a></li>
-						//-->
-					</ul>
-                </li>
-                <li>
-                    <a href="#">About</a>
-                </li>
-                <li>
-                    <a href="#">Contact</a>
+                    <a href="#">Back</a>
                 </li>
             </ul>
         </div>
@@ -50,38 +25,8 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h3>Booking Information</h3><hr>
+                        <h3>Reservation Information</h3><hr>
 						<form>
-							<h5>Reservation Information</h5>
-							&nbsp;
-							<div class="form-horizontal">
-								<div class="form-group form-group-sm">
-									<label for="ResType" class="col-sm-2 control-label">Reservation Type</label>
-									<div class="col-sm-2 checkbox">
-										<label><input type="radio" name="optReserve" checked="checked"> &nbsp;Walk-In</label>
-									</div>
-								</div>
-								<div class="form-group form-group-sm">
-									<label for="ResType" class="col-sm-2 control-label"></label>
-									<div class="col-sm-2 checkbox">
-										<label><input type="radio" name="optReserve"> &nbsp;Phone-In</label>
-									</div>
-								</div>
-								<div class="form-group form-group-sm">
-									<label for="ResType" class="col-sm-2 control-label"></label>
-									<div class="col-sm-2 checkbox">
-										<label><input type="radio" name="optReserve"> &nbsp;Online</label>
-									</div>
-								</div>
-								<div class="form-group form-group-sm">
-									<label for="ResType" class="col-sm-2 control-label">Reservation Number</label>
-									<div class="col-sm-3">
-										<input type="text" class="form-control" placeholder="Reservation Number">
-									</div>
-								</div>
-							</div>
-							&nbsp;
-							<hr>
 							<h5>Guest Information</h5>
 							&nbsp;
 							<div class="form-horizontal">
@@ -126,6 +71,55 @@
 								</div>
 							</div>
 							&nbsp;
+							<hr>
+							<h5>Event Details</h5>
+							&nbsp;
+							<div class="form-horizontal">
+								<div class="form-group form-group-sm">
+									<label for="rEventDate" class="col-sm-2 control-label">Event Date</label>
+									<div class="col-sm-6">
+										<div class="input-group date" id="rEventDate">
+											<input type='text' class="form-control" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar">
+												</span>
+											</span>
+										</div>
+									</div>
+								</div>
+								<div class="form-group form-group-sm">
+									<label for="rEventTime" class="col-sm-2 control-label">Time Start</label>
+									<div class="col-sm-6">
+										<div class="input-group date" id="rEventTime">
+											<input type='text' class="form-control" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar">
+												</span>
+											</span>
+										</div>
+									</div>
+								</div>						
+								<div class="form-group form-group-sm">
+									<label for="rEventType" class="col-sm-2 control-label">Event Type</label>
+									<div class="col-sm-6">
+										<select class="form-control">
+											<option value=0> - Select an Event Type - </option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group form-group-sm">
+									<label for="bRoomSched" class="col-sm-2 control-label">Event Details</label>
+									<div class="col-sm-6">
+										<textarea class="form-control" placeholder="Event Details/Remarks" style="height:100px;"></textarea>
+									</div>
+								</div>
+								<div class="form-group form-group-sm">
+									<label for="bRoomSched" class="col-sm-2 control-label">Estimated Guest Count</label>
+									<div class="col-sm-1">
+										<input type="text" class="form-control" placeholder="0" style="text-align: right;">
+									</div>
+								</div>
+							</div>
 							<hr>
 							<h5>Room Rentals</h5>
 							&nbsp;
