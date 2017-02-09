@@ -90,7 +90,19 @@
 								<div class="form-group form-group-sm">
 									<label for="rEventTime" class="col-sm-2 control-label">Time Start</label>
 									<div class="col-sm-6">
-										<div class="input-group date" id="rEventTime">
+										<div class="input-group date" id="rEventTimeStart">
+											<input type='text' class="form-control" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar">
+												</span>
+											</span>
+										</div>
+									</div>
+								</div>
+								<div class="form-group form-group-sm">
+									<label for="rEventTime" class="col-sm-2 control-label">Time End</label>
+									<div class="col-sm-6">
+										<div class="input-group date" id="rEventTimeEnd">
 											<input type='text' class="form-control" />
 											<span class="input-group-addon">
 												<span class="glyphicon glyphicon-calendar">

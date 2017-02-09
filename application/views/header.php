@@ -19,20 +19,21 @@
 		<link rel="stylesheet" href="<?php echo $libs . 'bootstrap/css/themes/simple-sidebar.css';?>">
 		<link rel="stylesheet" href="<?php echo $libs . 'bootstrap/css/bootstrap-datetimepicker.min.css';?>">
 		<style>
-			.inverse-dropdown{
-			background-color: #222;
-			border-color: #080808;
-			&>li>a{
-			  color: #999;
-			  &:hover{
-				color: #fff;
-				background-color: #000;
-			  }
+			.inverse-dropdown
+			{
+				background-color: #222;
+				border-color: #080808;
+				&>li>a{
+					color: #999;
+					&:hover{
+						color: #fff;
+						background-color: #000;
+					}
+				}
+				&>.divider {
+					background-color: #000;
+					}
 			}
-			&>.divider {
-			  background-color: #000;
-			}
-		  }
 		</style>
 	</head>
 	<body>
