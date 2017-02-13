@@ -30,12 +30,37 @@
             */
 		}
 		
+		function roomtypes(){
+			$this->load->model('ca_model');
+			$output = $this->ca_model->getroomtypes();
+			
+			echo json_encode($output);
+		}
+		
+		function rooms(){
+			if(isset($_GET['id'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->getrooms($_GET['id']);			
+				echo json_encode($output);
+			}
+		}
+		
+		function roomdetails(){
+			if(isset($_GET['id'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->getroominfo($_GET['id']);			
+				echo json_encode($output);
+			}
+		}
+		
 		function reservation(){
 			
 		}
 		
-		function booking(){
-			
+		function bookings(){
+			$this->load->model('ca_model');
+			$output = $this->ca_model->getactivebookings();
+			echo json_encode($output);
 		}
 	}
 ?>

@@ -16,6 +16,7 @@
 		<link rel="stylesheet" href="<?php echo $libs . 'bootstrap/css/bootstrap.min.css';?>">
 		<link rel="stylesheet" href="<?php echo $libs . 'bootstrap/css/bootstrap-theme.min.css';?>">
 		<link rel="stylesheet" href="<?php echo $libs . 'fa/css/font-awesome.min.css';?>">
+		<link rel="stylesheet" href="<?php echo $libs . 'fa/css/font-awesome-animation.min.css';?>">
 		<link rel="stylesheet" href="<?php echo $libs . 'bootstrap/css/themes/simple-sidebar.css';?>">
 		<link rel="stylesheet" href="<?php echo $libs . 'bootstrap/css/bootstrap-datetimepicker.min.css';?>">
 		<style>
