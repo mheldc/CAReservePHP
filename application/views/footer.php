@@ -12,7 +12,7 @@
 		<script type="text/javascript" src="<?php echo $libs . 'bootstrap/js/bootstrap-datetimepicker.min.js';?>"></script>
 		<script type="text/javascript" src="<?php echo $libs . 'cajs/ca-global.js';?>"></script>
 		<script type="text/javascript" src="<?php echo $libs . 'cajs/ca-ops.js';?>"></script>
-		<script type="text/javascript" src="<?php echo $libs . 'cajs/ca-react-ops.js';?>"></script>		
+		<!--<script type="text/javascript" src="<?php echo $libs . 'cajs/ca-react-ops.js';?>"></script>//-->
 		<!--[if lt IE 9]>
 		<script>
 		(function(){

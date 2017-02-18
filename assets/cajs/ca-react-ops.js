@@ -41,7 +41,28 @@ var ActiveBookings = React.createClass({
 	},
 	getActiveBookings: function() {
 		
-	}
+	},
+	loadBookingData: function() {
+		$.ajax({
+			url: wwwnavi + 'ca/roomdetails',
+			type: 'get',
+			data: {id:rid},
+			success: function(r){
+				var obj = JSON.parse(r);
+				roomdata = obj;
+				
+				roomrate.val(roomdata[0]['dayrate']);
+				roomcap.val(roomdata[0]['rmcap']);
+				roomdur.val(roomdata[0]['daytime']);
+			},
+			fail: function(jqXHR, textStatus){
+				console.log('Error occured: ' + textStatus);
+			},
+			done: function(r){
+				console.log('Done processing data');
+			}
+		}).bind();
+	},
 	render: function() {
 		
 	}

@@ -62,5 +62,45 @@
 			$output = $this->ca_model->getactivebookings();
 			echo json_encode($output);
 		}
+		
+		function newbooking(){
+			if(isset($_POST['pdata'])){
+				//$pdata = $_POST['pdata'];
+				$this->load->model('ca_model');
+				$output = $this->ca_model->addbooking($_POST['pdata']);
+				echo json_encode($output);
+				//echo json_encode(array($pdata[0]['booking_info']['srcid']));
+			}
+		}
+		
+		function guestlist(){
+			$this->load->model('ca_model');
+			$output = $this->ca_model->getguestlist();
+			echo json_encode($output);
+		}
+		
+		function guestinfo(){
+			if(isset($_GET['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->getguestinfo($_GET['pdata']);
+				echo json_encode($output);
+			}
+		}
+		
+		function paymentsummary() {
+			if(isset($_GET['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->getpaymentsummary($_GET['pdata']);
+				echo json_encode($output);
+			}
+		}
+		
+		function tagpayment(){
+			if(isset($_POST['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->updatepayment($_POST['pdata']);
+				echo json_encode($output);				
+			}
+		}
 	}
 ?>
