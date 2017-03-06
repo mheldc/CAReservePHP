@@ -16,7 +16,7 @@
 			$rs = $this->db->query('select id, concat(roomcode, ":", roomdesc) as room
 									from ca_rooms
 									where typeid = ?
-										and id not in (select `roomid` from ca_booking)', $roomtype);
+										and id not in (select `roomid` from ca_booking where `bkstat` = true)', $roomtype);
 			return $rs->result_array();
 		}
 		
@@ -24,13 +24,37 @@
 			$rs = $this->db->query('select a.`typeid` as rtype,
 											a.`id` as room,
 											a.`capacity` as rmcap,
-											concat(date_format(c.`regtimein`,"%h:%i %p")," to ", date_format(c.`regtimeout`,"%h:%i %p")) as daytime,
-											c.`regular` as dayrate,
-											concat(date_format(c.`ovntimein`,"%h:%i %p")," to ", date_format(c.`ovntimeout`,"%h:%i %p")) as nighttime,
-											c.`overnight` as nightrate
+											case 
+												when date_format(now(),"%H%i%s") between date_format(c.`regtimein`,"%H%i%s") and date_format(c.`regtimeout`,"%H%i%s")
+													then concat(date_format(c.`regtimein`,"%h:%i %p")," to ", date_format(c.`regtimeout`,"%h:%i %p"))
+												when date_format(now(),"%H%i%s") >= date_format(c.`ovntimein`,"%H%i%s") or date_format(now(),"%H%i%s") <= date_format(c.`ovntimeout`,"%H%i%s")
+													then concat(date_format(c.`ovntimein`,"%h:%i %p")," to ", date_format(c.`ovntimeout`,"%h:%i %p"))
+												else "None"
+											end as rmdur,
+											case a.`typeid`
+												when 6 then
+													case 
+														when date_format(now(),"%H%i%s") between 70000 and 115959 then c.`regular`
+														when date_format(now(),"%H%i%s") between 120000 and 185959 then c.`regular` - 500
+														when date_format(now(),"%H%i%s") between 190000 and 235959 then c.`overnight`
+														when date_format(now(),"%H%i%s") between 0 and 65959 then c.`overnight` - 500
+														else 0
+													end
+												else
+													case 
+														when date_format(now(),"%H%i%s") between date_format(c.`regtimein`,"%H%i%s") and date_format(c.`regtimeout`,"%H%i%s") then c.`regular`
+														when date_format(now(),"%H%i%s") >= date_format(c.`ovntimein`,"%H%i%s") or date_format(now(),"%H%i%s") <= date_format(c.`ovntimeout`,"%H%i%s") then c.`overnight`
+														else 0
+													end 
+												end as rates,
+												case 
+													when date_format(now(),"%H%i%s") between date_format(c.`regtimein`,"%H%i%s") and date_format(c.`regtimeout`,"%H%i%s") then 0
+													when date_format(now(),"%H%i%s") >= date_format(c.`ovntimein`,"%H%i%s") or date_format(now(),"%H%i%s") <= date_format(c.`ovntimeout`,"%H%i%s") then 1
+													else -1
+												end ratebasis
 									from 			ca_rooms 		as a
 										 inner join	ca_roomtype		as b on a.`typeid` = b.`id`
-										 inner join  ca_room_rates	as c on a.`typeid` = c.`rmtypeid`
+										 inner join ca_room_rates	as c on a.`typeid` = c.`rmtypeid`
 									where a.`id` = ?', $roomid);
 			return $rs->result_array();
 		}
@@ -42,9 +66,9 @@
 											f.qty,
 											case when count(e.`ispaid`) > 0 then true else false end as unpaid,
 											case a.`isovernight` when true then 
-												 case when curtime() >= d.`ovntimeout` then true else false end
+												case when now() >= concat(date_add(cast(substring(a.datecreated,1, 10) as date), interval 1 day), " ", d.`ovntimeout`) then true else false end
 											else
-												 case when curtime() >= d.`regtimeout` then true else false end
+												case when now() >= concat(cast(substring(a.datecreated,1, 10) as date), " ", d.`regtimeout`) then true else false end
 											end as timeout
 									 from 			ca_booking 			as a
 										 inner join 	ca_guest_info   	as b on a.`guestid` = b.`id`
@@ -63,6 +87,11 @@
 			$guest_info = $data[1]['guest_info'];
 			$new_gid = 0;
 			$new_bid = 0;
+			$isovn = false;
+			
+			if($booking_info['ison'] == "1"){
+				$isovn = true;
+			}
 			
 			if($booking_info['gid'] == 0) {
 				$qry = "insert into `ca_guest_info`
@@ -83,20 +112,20 @@
 				}
 				
 				$qry = "insert into ca_booking
-						(`bksrctypeid`, `rsvid`, `guestid`, `rmtypeid`, `roomid`, `guesta`, `guestc`, `isovernight`, `bkstat`, `createdbyid`, `datecreated`)
-					values
-						(?, ?, ?, ?, ?, ?, ?, ?, true, 0, now())";
+							(`bksrctypeid`, `rsvid`, `guestid`, `rmtypeid`, `roomid`, `rmrate`, `guesta`, `guestc`, `guestc2`, `isovernight`, `bkstat`, `createdbyid`, `datecreated`)
+						values
+							(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true, 0, now());";
 				$this->db->query($qry, array($booking_info['srcid'], $booking_info['rsid'], $new_gid,
-											 $booking_info['rtid'], $booking_info['rmid'], $booking_info['ga'],
-											 $booking_info['gc'], $booking_info['ison']));				
+											 $booking_info['rtid'], $booking_info['rmid'], $booking_info['rmrt'],
+											 $booking_info['ga'], $booking_info['gc'],  $booking_info['gc2'], $isovn));			
 			} else {
 				$qry = "insert into ca_booking
-						(`bksrctypeid`, `rsvid`, `guestid`, `rmtypeid`, `roomid`, `guesta`, `guestc`, `isovernight`, `bkstat`, `createdbyid`, `datecreated`)
-					values
-						(?, ?, ?, ?, ?, ?, ?, ?, true, 0, now())";
+							(`bksrctypeid`, `rsvid`, `guestid`, `rmtypeid`, `roomid`, `rmrate`, `guesta`, `guestc`, `guestc2`, `isovernight`, `bkstat`, `createdbyid`, `datecreated`)
+						values
+							(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true, 0, now());";
 				$this->db->query($qry, array($booking_info['srcid'], $booking_info['rsid'], $booking_info['gid'],
-											 $booking_info['rtid'], $booking_info['rmid'], $booking_info['ga'],
-											 $booking_info['gc'], $booking_info['ison']));
+											 $booking_info['rtid'], $booking_info['rmid'], $booking_info['rmrt'],
+											 $booking_info['ga'], $booking_info['gc'],  $booking_info['gc2'], $isovn));	
 			}
 			
 			$qry = "select last_insert_id() as recid from `ca_booking`;";
@@ -122,7 +151,7 @@
 						
 			if($new_gid == 0) {$new_gid = $booking_info['gid'];}
 			
-			$msg = "Please prepare " . $booking_info['rmnm'] . " for guest " . $guest_info['gfn'] . " " . $guest_info['gln'] . " for " . ($booking_info['ga'] + $booking_info['gc'] + $booking_info['gc2']) . " pax.";
+			$msg = "Prepare : " . $booking_info['rmnm'];
 			$this->db->query($qry, array($new_bid, $new_gid, $msg));
 			
 			// Guest
@@ -131,7 +160,7 @@
 			 * 3 - Child below 2 years old
 			 */
 			
-			$qry = "select `id`, `gtype`, case when curtime() between  dfrom and dto then dayrate else nightrate end as grates
+			$qry = "select `id`, `gtype`, case when curtime() between dfrom and dto then dayrate else nightrate end as grates
 					from ca_guest_rates
 					order by `id` asc";
 			$rs = $this->db->query($qry);
@@ -166,13 +195,14 @@
 		function getguestlist($searchparam = ''){
 			$qry = "select `id`, concat(`lastname`, ', ', `firstname`, ' ', 
 							case length(trim(both from `middlename`)) when 0 then '' else concat(substring(`middlename`,1,1), '.') end) as gname
-					from `ca_guest_info`";
+					from `ca_guest_info`
+					order by `lastname`, `firstname` asc";
 			$result = $this->db->query($qry);
 			
 			return $result->result_array();
 		}
 		
-		function getguestinfo($gid = 0) {
+		function getguestinfo($gid = 0){
 			$qry = "select `salutation`, `lastname`, `firstname`, `middlename`, `address`, `email`, `landline`, `mobile`
 					from `ca_guest_info`
 					where `id` = ?;";
@@ -196,17 +226,175 @@
 					  and `ispaid` = false;";
 			$this->db->query($qry, $bid);
 			
-			$qry = "select count(`ispaid`) as paymentdue where `bkid` = ? and `ispaid` = false;";
+			$qry = "select count(`ispaid`) as paymentdue from `ca_booking_items` where `bkid` = ? and `ispaid` = false;";
 			$rs = $this->db->query($qry, $bid);
+			$row = $rs->row();
 			
-			foreach ($rs->result() as $row)
-			{
-				if($row->paymentdue== 0){
-					return(array('tag_status' => true));
+			if ($row->paymentdue == 0) {
+				return array('tag_status' => true);
+			} else {
+				return array('tag_status' => false);
+			}
+		}
+		
+		
+		function flagcheckout($bid = 0){
+			
+			$checked_out = false;
+			$with_unpaid = false;
+			$checkout_result;
+			
+			$qry = 'select count(`id`) as unpaid from `ca_booking_items` where `ispaid` = false and `bkid` = ?';
+			$rs = $this->db->query($qry, $bid);
+			$row =  $rs->row();
+			
+			if($row->unpaid == 0) { $with_unpaid = false; } else { $with_unpaid = true; }
+			
+			if($with_unpaid == false) {
+				$qry = 'update `ca_booking`
+						set `bkstat` = false, `modifiedbyid` = 0, `datemodified` = now()
+						where `id` = ?';
+				$this->db->query($qry, $bid);
+				
+				$qry = 'select count(`id`) as recid from `ca_booking` where `id` = ? and `bkstat` = true;';
+				$rs = $this->db->query($qry, $bid);
+				$row = $rs->row();
+				
+				if($row->recid == 0) { $checked_out = true; } else { $checked_out = false; }
+				
+				if($checked_out == false) {
+					$checkout_result = array('flag' => false, 'mesg' => 'There are problems while checking out, please call your system provider for support.');
 				} else {
-					return(array('tag_status' => false));
+					$checkout_result = array('flag' => true, 'mesg' => 'Ok');
 				}
 			}
+			else {
+				$checkout_result = array('flag' => false, 'mesg' => 'There are item(s) that is due for payment. Please settle first before checking out.');
+			}
+			
+			return $checkout_result;
+		}
+				
+		function getguestrates(){
+			$qry = 'select `id`,
+							case 
+								when cast(now() as datetime) >= cast(concat(curdate(), " ", `dfrom`) as datetime) then `dayrate`
+								when cast(now() as datetime) >= cast(concat(curdate(), " ", `nfrom`) as datetime) then `nightrate`
+								else 0
+							end as rates
+					from ca_guest_rates;';
+			$rs = $this->db->query($qry);
+			return $rs->result_array();
+			
+		}
+		
+		function appendguests($data){
+			if(isset($data)){
+				$bkid = 0;
+				$qry = 'insert into `ca_booking_items`
+							(`bkid`, `itemtype`, `itemdesc`, `itemqty`, `itemamt`, `createdbyid`, `datecreated`)
+						values
+							(?, ?, ?, ?, ?, 0, now());';
+				foreach($data as $d){
+					$this->db->query($qry, array($d['bid'], $d['itype'], $d['idesc'], $d['iqty'], $d['iamt']));
+					$bkid = $d['bid'];
+				}
+				
+				return array('flag' => true, 'mesg' => 'Ok');
+			} else {
+				return array('flag' => false, 'mesg' => 'Encountered problems while adding new guest. Please contact your system provider for support.');
+			}
+		}
+		
+		function getbookingaccomodation($bid = 0){
+			if(isset($bid)){
+				$qry = 'select a.`id` as bid,
+								a.`rmtypeid` as acctype,
+								d.`typedesc` as acctdesc,
+								a.`roomid` as acc,
+								c.`roomdesc` as accdesc,
+								a.`rmrate` as rates
+						from 		   `ca_booking`    as a
+							inner join `ca_room_rates` as b on a.`rmtypeid` = b.`rmtypeid`
+							inner join `ca_rooms`	   as c on a.`roomid` = c.`id`
+							inner join `ca_roomtype`   as d on a.`rmtypeid` = d.`id`
+						where a.`id` = ? and a.`bkstat` = true;';
+				$rs = $this->db->query($qry, $bid);
+				return $rs->result_array();
+				
+			} else {
+				return array('flag' => false, 'mesg' => 'Encountered problems while adding new guest. Please contact your system provider for support.');
+			}
+		}
+		
+		
+		function transferaccomodation($data){
+			$ti = $data[0];
+			$tid = 0;
+			
+			$qry = 'insert into `ca_booking_transfers`
+						(`bid`, `frmtypeid`, `frmid`, `frmrate`, `newrmtypeid`, `newrmid`, `rmrate`, `remarks`, `createdbyid`, `datecreated`)
+					values
+						(?, ?, ?, ?, ?, ?, ?, ?, 0, now());';
+			$this->db->query($qry, array($ti['bid'],
+										 $ti['frmtype'], $ti['frmid'], $ti['frmrt'],
+										 $ti['rmtype'], $ti['rmid'], $ti['rmrt'], $ti['rmk']));
+			
+			$qry = 'update `ca_booking`
+					set `rmtypeid` = ?, `roomid` = ?, `rmrate` = ?
+					where `id` = ?;';
+			$this->db->query($qry, array($ti['rmtype'], $ti['rmid'], $ti['rmrt'],$ti['bid']));
+			
+			if($ti['frmrt'] < $ti['rmrt'] || $ti['frmrt'] == $ti['rmrt'] ){
+				$tamount = floatval($ti['rmrt'] - $ti['frmrt']);
+				$qry = 'insert into `ca_booking_items` 
+							(`bkid`, `itemtype`, `itemdesc`, `itemqty`, `itemamt`, `createdbyid`, `datecreated`)
+						values
+							(?, ?, ?, ?, ?, 0, now());';
+							
+				$this->db->query($qry, array($ti['bid'], 1, $ti['rmnm'], 1, $tamount));
+			}
+			
+			$mesg = 'Transfer : From '. $ti['frmnm'] .' to ' . $ti['rmnm'];
+			$qry = 'insert into `ca_queue_served`
+						(`bid`, `guestid`, `message`, `isserved`, `createdbyid`, `datecreated`)
+					select `id`, `guestid`, ?, false, 0, now()
+					from `ca_booking` where `id` = ?;';
+			$this->db->query($qry, array($mesg, $ti['bid']));
+			
+			$qry = 'select `id` as recid from `ca_booking_transfers`
+					where `bid` = ?
+					  and `newrmtypeid` = ?
+					  and `newrmid` = ?
+					order by `id` desc limit 1;';
+			$rs = $this->db->query($qry, array($ti['bid'], $ti['rmtype'], $ti['rmid']));
+			
+			if($rs->num_rows() > 0){
+				$row = $rs->row();
+				$tid = $row->recid;
+			}
+			
+			if($tid == 0){
+				return array('flag' => false, 'mesg' => 'Error occured while processing transfer accomodation. Please contact you system provider for support.');
+			} else {
+				return array('flag' => true, 'mesg' => 'Ok');
+			}
+			
+		}
+		
+		function getitemtypes(){
+			$qry = 'select `id` as itid, `typedesc` as itdesc  from `ca_invtypes` where `typestat` = true;';
+			$rs = $this->db->query($qry);
+			return $rs->result_array();
+		}
+		
+		function getitems($itype = 0){
+			$qry = 'select `id` as iid, `itemdesc` as idesc, `itemdesc` as idesc2, `price` as iprice
+					from `ca_invitems`
+					where `itemstat` = true
+					  and `typeid` = ?;';
+			$rs = $this->db->query($qry, $itype);
+			return $rs->result_array();
 		}
 		
 		function validate_credentials($data = []){

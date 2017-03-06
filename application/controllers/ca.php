@@ -69,7 +69,6 @@
 				$this->load->model('ca_model');
 				$output = $this->ca_model->addbooking($_POST['pdata']);
 				echo json_encode($output);
-				//echo json_encode(array($pdata[0]['booking_info']['srcid']));
 			}
 		}
 		
@@ -87,7 +86,7 @@
 			}
 		}
 		
-		function paymentsummary() {
+		function paymentsummary(){
 			if(isset($_GET['pdata'])){
 				$this->load->model('ca_model');
 				$output = $this->ca_model->getpaymentsummary($_GET['pdata']);
@@ -100,6 +99,58 @@
 				$this->load->model('ca_model');
 				$output = $this->ca_model->updatepayment($_POST['pdata']);
 				echo json_encode($output);				
+			}
+		}
+		
+		function checkout(){
+			if(isset($_POST['pdata'])) {
+				$this->load->model('ca_model');
+				$output = $this->ca_model->flagcheckout($_POST['pdata']);
+				echo json_encode($output);	
+			}
+		}
+	
+		function guestrates(){
+			$this->load->model('ca_model');
+			$output = $this->ca_model->getguestrates();
+			echo json_encode($output);	
+		}
+		
+		function addguest(){
+			if(isset($_POST['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->appendguests($_POST['pdata']);
+				echo json_encode($output);
+			}
+		}
+	
+		function curaccomodation(){
+			if(isset($_GET['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->getbookingaccomodation($_GET['pdata']);
+				echo json_encode($output);
+			}
+		}
+		
+		function transferaccomodation(){
+			if(isset($_POST['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->transferaccomodation($_POST['pdata']);
+				echo json_encode($output);
+			}
+		}
+		
+		function itemtypes(){
+			$this->load->model('ca_model');
+			$output = $this->ca_model->getitemtypes();
+			echo json_encode($output);
+		}
+		
+		function items(){
+			if(isset($_GET['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->getitems($_GET['pdata']);
+				echo json_encode($output);
 			}
 		}
 	}
