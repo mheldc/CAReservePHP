@@ -153,5 +153,121 @@
 				echo json_encode($output);
 			}
 		}
+		
+		function requestitems(){
+			if(isset($_POST['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->addrequestitems($_POST['pdata']);
+				echo json_encode($output);
+			}
+		}
+		
+		function issueresortpasses(){
+			if(isset($_POST['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->logbarcodewristbands($_POST['pdata']);
+				echo json_encode($output);
+			}			
+		}
+		
+		function receipt(){
+			/*
+			if(isset($_GET['pdata'])){
+				$this->load->model('ca_model');
+				$this->ca_model->getreceiptdetails($_GET['pdata']);
+			}
+			*/
+            $data['content'] = '<table style="width:100%;">
+									<tr>
+										<td style="width: 130; height:83;">
+											<img src="./assets/img/logo.png" width="130px" height="83px" alt="No Image">
+										</td>
+										<td style="width: 74%; height:83; vertical-align: center;">
+											<label style="font-family: helvetica; color: rgb(205, 92, 92); font-size: 18px;">BILLING STATEMENT</label>
+											<br />
+											<label style="font-family: helvetica; color: rgb(205, 92, 92); font-size: 10px;">COSTA ABRIL RESORT</label>
+											<br />
+											<label style="font-family: helvetica; color: rgb(205, 92, 92); font-size: 8px;">#40 Dao St. San Jose, Rodriguez, Rizal Contact #: 514 1282 | 534 8119 |0922 832 0098</label>
+										</td>
+									</tr>
+								</table>
+								<br /><br />
+								<table style="width:100%; font-size:9px;">
+									<tr>
+										<td style="width:15%;">Booking Number:</td>
+										<td style="width:35%;">20170307-000001</td>
+										<td style="width:15%;">Booking Type:</td>
+										<td style="width:35%;">Walk-In</td>
+									</tr>
+									<tr>
+										<td style="width:15%;">Customer Name:</td>
+										<td style="width:35%;">Dela Cruz, Juan D.</td>
+										<td style="width:15%;">Landline No:</td>
+										<td style="width:35%;">1111111</td>
+									</tr>
+									<tr>
+										<td style="width:15%;">Address:</td>
+										<td style="width:35%;">Sampaloc Manila</td>
+										<td style="width:15%;">Mobile No:</td>
+										<td style="width:35%;">1111111</td>
+									</tr>
+									<tr>
+										<td style="width:15%;">Email Addr:</td>
+										<td style="width:35%;">sample@example.com</td>
+										<td style="width:15%;"></td>
+										<td style="width:35%;"></td>
+									</tr>
+								</table>
+								<br />
+								<div style="border: 1px solid black; height:20px !important; width:100%;">
+									<div style="width:100%;">
+										<table border="1">
+											<thead>
+												<tr style="border-bottom: 1px solid black;">
+													<td colspan="3" style="text-align:center; font-size: 12px;">Particulars</td>
+												</tr>
+												<tr>
+													<td style="text-align:left; font-size: 9px; width:80%;"> Item Description</td>
+													<td style="text-align:center; font-size: 9px; width:10%;"> Qty</td>
+													<td style="text-align:center; font-size: 9px; width:10%;"> Subtotal</td>
+												</tr>
+											</thead>
+										</table>
+										<table border="0">
+											<tbody>
+												<tr><td colspan="3" style="font-size: 8px;">&nbsp;</td></tr>
+												<tr>
+													<td style="text-align:left; vertical-align: middle; font-size: 9px; width:80%; height:10px;"> Item 1</td>
+													<td style="text-align:right; vertical-align: middle; font-size: 9px; width:10%; height:10px;"> 1 &nbsp;</td>
+													<td style="text-align:right; vertical-align: middle; font-size: 9px; width:10%; height:10px;"> 100.00 &nbsp;</td>
+												</tr>
+												<tr>
+													<td style="text-align:left; vertical-align: middle; font-size: 9px; width:80%; height:10px;"> Item 2</td>
+													<td style="text-align:right; vertical-align: middle; font-size: 9px; width:10%; height:10px;"> 1 &nbsp;</td>
+													<td style="text-align:right; vertical-align: middle; font-size: 9px; width:10%; height:10px;"> 100.00 &nbsp;</td>
+												</tr>
+												<tr>
+													<td style="text-align:left; vertical-align: middle; font-size: 9px; width:80%; height:10px;"> Item 3</td>
+													<td style="text-align:right; vertical-align: middle; font-size: 9px; width:10%; height:10px;"> 1 &nbsp;</td>
+													<td style="text-align:right; vertical-align: middle; font-size: 9px; width:10%; height:10px;"> 100.00 &nbsp;</td>
+												</tr>
+											</tbody>
+										</table>
+										<table>
+											<tfoot>
+												<tr><td colspan="3" style="font-size: 8px;">&nbsp;</td></tr>
+												<tr><td colspan="3" style="font-size: 8px;"><hr></td></tr>
+												<tr>
+													<td colspan="2" style="text-align:left; font-size: 10px; width:80%; vertical-align: middle;"> Total due</td>
+													<td style="text-align:right; font-size: 10px; width:20%; vertical-align: middle;"> 300.00 &nbsp;</td>
+												</tr>
+											</thead>
+										</tfoot>
+									</div>
+								</div>';
+            $data['title'] = "Payment Reciept";
+            $this->load->helper('tcpdf_helper');
+            $this->load->view('reports/receipt',$data);
+        }
 	}
 ?>

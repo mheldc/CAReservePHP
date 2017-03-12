@@ -60,24 +60,31 @@
 		}
 		
 		function getactivebookings(){
-			$rs = $this->db->query('select a.`id` as bkid,
+			$rs = $this->db->query('select 	a.`id` as bkid,
 											concat(b.`lastname`, ", ", b.`firstname`, case length(trim(both from b.`middlename`)) when 0 then "" else concat(" ", substring(b.`middlename`,1,1),".") end )  as guestname,
 											c.`roomdesc` as room,
 											f.qty,
+											ifnull(g.bcqty, 0) as bcqty,
 											case when count(e.`ispaid`) > 0 then true else false end as unpaid,
 											case a.`isovernight` when true then 
 												case when now() >= concat(date_add(cast(substring(a.datecreated,1, 10) as date), interval 1 day), " ", d.`ovntimeout`) then true else false end
 											else
 												case when now() >= concat(cast(substring(a.datecreated,1, 10) as date), " ", d.`regtimeout`) then true else false end
-											end as timeout
-									 from 			ca_booking 			as a
-										 inner join 	ca_guest_info   	as b on a.`guestid` = b.`id`
-										 inner join 	ca_rooms			as c on a.`roomid` = c.`id`
-										 inner join  ca_room_rates		as d on c.`typeid` = d.`rmtypeid`
-										 left  join  ca_booking_items	as e on a.`id` = e.`bkid` and e.`ispaid` = false
-										 inner join  (select `bkid`, sum(`itemqty`) as qty from `ca_booking_items` where `itemtype` = 2 group by `bkid`) as f on a.`id` = f.`bkid`
-									 where a.`bkstat` = true
-									 group by a.`id`, e.`ispaid`;');
+											end as timeout,
+											case 
+												when ifnull(g.bcqty, 0) < (a.`guesta` + a.`guestc` + a.`guestc2`)
+													then (a.`guesta` + a.`guestc` + a.`guestc2`) - ifnull(g.bcqty, 0)
+												else 0
+											end as bctoissue
+									from 			ca_booking 			as a
+										inner join 	ca_guest_info   	as b on a.`guestid` = b.`id`
+										inner join 	ca_rooms			as c on a.`roomid` = c.`id`
+										inner join  ca_room_rates		as d on c.`typeid` = d.`rmtypeid`
+										left  join  ca_booking_items	as e on a.`id` = e.`bkid` and e.`ispaid` = false
+										inner join  (select `bkid`, sum(`itemqty`) as qty from `ca_booking_items` where `itemtype` = 2 group by `bkid`) as f on a.`id` = f.`bkid`
+										left  join  (select `bkid`, sum(`bcid`) as bcqty from `ca_booking_guest` group by `bkid`) as g on a.`id` = g.`bkid`
+									where a.`bkstat` = true
+									group by a.`id`, e.`ispaid`;');
 			return $rs->result_array();
 		}
 		
@@ -219,7 +226,7 @@
 			return $rs->result_array();
 		}
 		
-		function updatepayment($bid = 0){
+		function updatepayment($bid = 0){		
 			$qry = "update `ca_booking_items`
 					set `ispaid` = true, `modifiedbyid` = 0, `datemodified` = now()
 					where `bkid` = ?
@@ -237,6 +244,38 @@
 			}
 		}
 		
+		function getreceiptdetails($bid = 0){
+			$qry = "select `bkid`, `itemtype`, `itemdesc`, `itemqty`, `itemamt`, `ispaid`, `isprinted`
+					from `ca_booking_items`
+					where `bkid` = ?
+					  and `ispaid` = true
+					  and `isprinted` = false;";
+			$rcp = $this->db->query($qry, $bid);
+			
+			$qry = 'select	a.`id` as bid,
+							concat(date_format(a.`datecreated`, "%Y%m%d"), "-", lpad(a.`id`,6,"0")) as cbid,
+							concat(b.`lastname`, ", ", b.`firstname`, case length(trim( both from b.`middlename`)) when 0 then "" else concat(" ", substring(b.`middlename`, 1, 1)) end) as gname,
+							b.`address`,
+							b.`landline`,
+							b.`mobile`,
+							b.`email`,
+							c.`typedesc` as roomtype,
+							d.`roomdesc` as room
+					from 			`ca_booking` 	as a
+						inner join	`ca_guest_info` as b on a.`guestid` = b.`id`
+						inner join 	`ca_roomtype`   as c on a.`rmtypeid` = c.`id`
+						inner join 	`ca_rooms`		as d on a.`roomid` = d.`id`
+					where a.id = ?';
+			$bki = $this->db->query($qry, $bid);		
+			
+			$qry = "update `ca_booking_items` set `isprinted` = true where `bkid` = ? and `isprinted` = false;";
+			$this->db->query($qry, $bid);
+			
+			$output = array('bill_items' => $rcp->result_array(),
+							'bk_info' => $bki->result_array());
+			
+			return $output;
+		}
 		
 		function flagcheckout($bid = 0){
 			
@@ -291,6 +330,10 @@
 		function appendguests($data){
 			if(isset($data)){
 				$bkid = 0;
+				$gc_a = 0;
+				$gc_b = 0;
+				$gc_c = 0;
+				
 				$qry = 'insert into `ca_booking_items`
 							(`bkid`, `itemtype`, `itemdesc`, `itemqty`, `itemamt`, `createdbyid`, `datecreated`)
 						values
@@ -298,7 +341,25 @@
 				foreach($data as $d){
 					$this->db->query($qry, array($d['bid'], $d['itype'], $d['idesc'], $d['iqty'], $d['iamt']));
 					$bkid = $d['bid'];
+					
+					if($d['gtype'] == 'a'){
+						$gc_a = $d['iqty'];
+					} elseif($d['gtype'] == 'b'){
+						$gc_b = $d['iqty']; 
+					} elseif($d['gtype'] == 'c'){
+						$gc_c = $d['iqty']; 
+					} else {
+						$gc_a = 0;
+						$gc_b = 0;
+						$gc_c = 0;
+					}
 				}
+				
+				$qry = 'update `ca_booking` 
+						set `guesta` = `guesta` + ?, `guestc` = `guestc` + ?, `guestc2` = `guestc2` + ?
+						where `id` = ?;';
+						
+				$this->db->query($qry, array($gc_a, $gc_b, $gc_c, $bkid));
 				
 				return array('flag' => true, 'mesg' => 'Ok');
 			} else {
@@ -395,6 +456,72 @@
 					  and `typeid` = ?;';
 			$rs = $this->db->query($qry, $itype);
 			return $rs->result_array();
+		}
+		
+		function addrequestitems($data){
+			if(count($data) > 0){
+				foreach($data as $d){
+					$qry = 'insert into `ca_booking_items`
+								(`bkid`, `itemtype`, `itemdesc`, `itemqty`, `itemamt`, `ispaid`, `createdbyid`, `datecreated`)
+							values
+								(?, 3, ?, ?, ?, false, 0, now());';
+					$this->db->query($qry, array($d['bid'], $d['ritemdesc'] .' x'. $d['rqty'] , $d['rqty'], $d['ist']));
+				}
+				
+				$bkid = $data[0]['bid'];
+				
+				$qry = 'select count(`id`) as icnt from `ca_booking_items` where `bkid` = ? and `itemtype` = 3 and `ispaid` = false;';
+				$rs = $this->db->query($qry, $bkid);
+				
+				$row = $rs->row();
+				
+				if(count($data) == $row->icnt){
+					return array('flag' => true);
+				}
+				else {
+					return array('flag' => false);
+				}
+			}
+		}
+		
+		function logbarcodewristbands($data){
+			
+			$bkid = 0;
+			foreach($data as $d){
+				$qry = 'insert into `ca_booking_guest`
+							(`bkid`, `bcid`, `timein`, `expdate`, `createdbyid`, `datecreated`)
+						select 	a.`id`,
+								?, 
+								curtime() as timein, 
+								case a.`isovernight`
+									when true 
+										then case 
+												when date_format(a.`datecreated`,"%H%i%s") >= 0 and 
+													 date_format(a.`datecreated`,"%H%i%s") < 70000 
+													then concat(date_format(a.`datecreated`,"%Y-%m-%d"), " ", b.`ovntimeout`)
+												else concat(date_format(date_add(a.`datecreated`, interval 1 day),"%Y-%m-%d"), " ", b.`ovntimeout`)
+											 end
+									when false then concat(date_format(a.`datecreated`,"%Y-%m-%d"), " ", b.`regtimeout`)
+									else now()
+								end as expdate,
+								0 as cbid,
+								now() as today
+						from 			`ca_booking` 	as a
+							inner join 	`ca_room_rates` as b on a.`rmtypeid` = b.`rmtypeid`
+						where a.`id` = ?';				
+				$bkid = $d['bid'];
+				$this->db->query($qry, array($d['bcode'], $d['bid']));
+			}
+			
+			$qry = 'select count(`id`) as wbc from `ca_booking_guest` where `bkid` = ?;';
+			$rs = $this->db->query($qry, $bkid);
+			$row = $rs->row();
+			
+			if(count($data) == $row->wbc){
+				return array('flag' => true);
+			} else {
+				return array('flag' => false);
+			}
 		}
 		
 		function validate_credentials($data = []){

@@ -45,7 +45,7 @@
  * Installation path (/var/www/tcpdf/).
  * By default it is automatically calculated but you can also set it as a fixed string to improve performances.
  */
-define ('K_PATH_MAIN', 'application/helpers/tcpdf_min/');
+//define ('K_PATH_MAIN', '');
 
 /**
  * URL path to tcpdf installation folder (http://localhost/tcpdf/).
@@ -57,7 +57,7 @@ define ('K_PATH_MAIN', 'application/helpers/tcpdf_min/');
  * Path for PDF fonts.
  * By default it is automatically set but you can also set it as a fixed string to improve performances.
  */
-define ('K_PATH_FONTS', K_PATH_MAIN.'fonts/');
+//define ('K_PATH_FONTS', K_PATH_MAIN.'fonts/');
 
 /**
  * Default images directory.
@@ -79,7 +79,7 @@ define ('K_PATH_FONTS', K_PATH_MAIN.'fonts/');
 /**
  * Cache directory for temporary files (full path).
  */
-define ('K_PATH_CACHE', '/tmp/');
+//define ('K_PATH_CACHE', '/tmp/');
 
 /**
  * Generic name for a blank image.
@@ -99,24 +99,22 @@ define ('PDF_PAGE_ORIENTATION', 'P');
 /**
  * Document creator.
  */
-define ('PDF_CREATOR', '');
+define ('PDF_CREATOR', 'TCPDF');
 
 /**
  * Document author.
  */
-define ('PDF_AUTHOR', '');
+define ('PDF_AUTHOR', 'TCPDF');
 
 /**
  * Header title.
  */
-//define ('PDF_HEADER_TITLE', 'TCPDF Example');
-define ('PDF_HEADER_TITLE', '');
+define ('PDF_HEADER_TITLE', 'TCPDF Example');
 
 /**
  * Header description string.
  */
-//define ('PDF_HEADER_STRING', "by Nicola Asuni - Tecnick.com\nwww.tcpdf.org");
-define ('PDF_HEADER_STRING', "");
+define ('PDF_HEADER_STRING', "by Nicola Asuni - Tecnick.com\nwww.tcpdf.org");
 
 /**
  * Document unit of measure [pt=point, mm=millimeter, cm=centimeter, in=inch].
@@ -126,7 +124,7 @@ define ('PDF_UNIT', 'mm');
 /**
  * Header margin.
  */
-define ('PDF_MARGIN_HEADER', 10);
+define ('PDF_MARGIN_HEADER', 5);
 
 /**
  * Footer margin.

@@ -5,29 +5,95 @@
 <div id="wrapper">
 	<!-- Sidebar -->
 		<div id="sidebar-wrapper">
-			<ul class="sidebar-nav">]
-				<li class="sidebar-brand">
-					<a href="#">
-						Costa Abrille Resort
-					</a>
-				</li>
-				<li>
-					<a href="#activebooking" data-toggle="tab" onclick="javascript:loadactivebookings();">Active Bookings</a>
-				</li>
-				<li>
-					<a href="#newbooking" data-toggle="tab">New Booking</a>
-				</li>
-				<li>
-					<a href="#">Home</a>
-				</li>
-			</ul>
+			<div class="form-horizontal">
+				<ul class="sidebar-nav">
+					<li class="sidebar-brand">
+						<a href="#cahome" data-toggle="tab">
+							Costa Abrille Resort
+						</a>
+					</li>
+					<li>
+						<a href="#cahome" data-toggle="tab">Home</a>
+					</li>
+					<li>
+						<a href="#activebooking" data-toggle="tab" onclick="javascript:loadactivebookings();">Active Bookings</a>
+					</li>
+					<li>
+						<a href="#newbooking" data-toggle="tab">New Booking</a>
+					</li>
+					<li>
+						<a href="#refunds" data-toggle="tab">Refunds</a>
+					</li>
+					<li>
+						<a href="#reports" data-toggle="tab">Report Summary</a>
+					</li>
+				</ul>				
+			</div>
+			<div class="form-horizontal" style="height: 10px;">&nbsp;</div>
+			<div class="form-horizontal" style="height: 5px; position: relative;">
+				<ul class="sidebar-nav">
+					
+				</ul>
+			</div>
+			<div class="form-horizontal" style="bottom:150px; position: fixed;">
+				<ul class="sidebar-nav">
+					<li>
+						<a href="#" onclick="javascript:alert('Under Construction')">Maintenance</a>
+					</li>
+					<li style="visibility: hidden;">
+						<a href="#">Sign In</a>
+					</li>
+				</ul>				
+			</div>
 		</div>
 		<!-- /#sidebar-wrapper -->
 		
 		<!-- Page Content -->
 		<div id="page-content-wrapper">
 			<div class="tab-content">
-				<div id="activebooking" class="container-fluid tab-pane fade in active">
+				<div id="cahome" class="container-fluid tab-pane fade in active">
+					<div class="row">
+						<div class="col-sm-8">
+							<img class="img-responsive img-rounded" src="./assets/img/cahome.png" alt="" style="width:900px; height: 350px;">
+						</div>
+						<div class="col-sm-4">
+							<h1>Costa Abril Resort</h1>
+							<p>Costa Abril is a resort offering overnight rooms, a water play for children, and a variety of 3 spacious pools.</p>
+							<!--<a class="btn btn-primary btn-lg" href="#">Call to Action!</a>/-->
+						</div>
+					</div>
+					<hr>
+					<div class="row">
+						<div class="col-md-4 portfolio-item">
+							<a href="#">
+								<img class="img-responsive" src="./assets/img/villa/villa-1.jpg" alt="" style="width: 350px; height: 200px;">
+							</a>
+							<h3>
+								<a href="#">Function Rooms</a>
+							</h3>
+							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+						</div>
+						<div class="col-md-4 portfolio-item">
+							<a href="#">
+								<img class="img-responsive" src="./assets/img/villa/villa-2.jpg" alt="" style="width: 350px; height: 200px;">
+							</a>
+							<h3>
+								<a href="#">Villa</a>
+							</h3>
+							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+						</div>
+						<div class="col-md-4 portfolio-item">
+							<a href="#">
+								<img class="img-responsive" src="./assets/img/villa/villa-3.jpg" alt="" style="width: 350px; height: 200px;">
+							</a>
+							<h3>
+								<a href="#">Standard Rooms</a>
+							</h3>
+							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+						</div>
+					</div>
+				</div>
+				<div id="activebooking" class="container-fluid tab-pane fade">
 					<div class="row ">
 						<h3>Active Bookings</h3><hr>
 						<!-- Booking Header /-->
@@ -115,7 +181,7 @@
 											</thead>
 										</table>												
 									</div>
-									<div style="height: 40%; overflow-y: auto;">
+									<div style="height: 35%; overflow-y: auto;">
 										<table class="table table-condensed table-striped table-responsive" style="font-family: Calibri !important; font-size:14px !important;">
 											<tbody id="paymentlist">
 											</tbody>
@@ -142,7 +208,6 @@
 										</table>
 									</div>
 								</div>
-								
 								<div class="modal-footer">
 									<button type="button" class="btn btn-default" id="settlepymtclose" data-dismiss="modal" onclick="javascript:resetpymtvalues();">Close</button>
 									<button type="button" class="btn btn-primary" id="settlepymt">Settle Payment</button>
@@ -150,6 +215,7 @@
 							</div>
 						</div>
 					</div>
+				
 					<!-- Additional Guest Modal -->
 					<div class="modal fade" id="addguestmodal" tabindex="-1" role="dialog" aria-labelledby="addguestmodalLabel">
 						<div class="modal-dialog" role="document">
@@ -208,6 +274,7 @@
 							</div>
 						</div>
 					</div>
+				
 					<!-- Change/Update Accomodation Modal -->
 					<div class="modal fade" id="changeaccmodal" tabindex="-1" role="dialog" aria-labelledby="changeaccmodalLabel">
 						<div class="modal-dialog" role="document">
@@ -295,12 +362,13 @@
 							</div>
 						</div>
 					</div>
+				
 					<!-- Guests Additional Requests Modal -->
 					<div class="modal fade" id="guestreqmodal" tabindex="-1" role="dialog" aria-labelledby="guestreqmodalLabel">
 						<div class="modal-dialog" role="document">
 							<div class="modal-content">
 								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<button type="button" class="close" aria-label="Close" onclick="javascript:cancel_request_items();"><span aria-hidden="true">&times;</span></button>
 									<h4 class="modal-title" id="guestreqmodalLabel">Additional Requests</h4>
 								</div>
 								<div class="modal-body">
@@ -360,7 +428,7 @@
 											<tfoot>
 												<tr>
 													<td colspan="2" class="col-sm-8"><h4>Total Due</h4></td>
-													<td class="col-sm-1" style="text-align: right;" ><h4 id="igtotal">900.00</h4></td>
+													<td class="col-sm-1" style="text-align: right;" ><h4 id="igtotal">0.00</h4></td>
 												</tr>
 											</tfoot>
 										</table>
@@ -369,15 +437,87 @@
 								<div class="modal-footer">
 									<button type="button" class="btn btn-default" data-dismiss="modal" style="visibility: hidden;" id="crequestitem">
 									<button type="button" class="btn btn-default" onclick="javascript:cancel_request_items();">Cancel</button>
-									<button type="button" class="btn btn-primary">Submit Request and Go to Payment</button>
+									<button type="button" class="btn btn-primary" onclick="javascript:presave_items();">Submit Request and Go to Payment</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Barcode Wristband Issuance Modal -->
+					<div class="modal fade" id="barcodemodal" tabindex="-1" role="dialog" aria-labelledby="barcodemodalLabel">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" aria-label="Close" onclick="javascript:cancel_barcode_issuance();"><span aria-hidden="true">&times;</span></button>
+									<h4 class="modal-title" id="barcodemodalLabel">Wristbands Issuance</h4>
+								</div>
+								<div class="modal-body">
+									<div class="form-horizontal">
+										<div class="input-group input-group-sm">
+											<span class="input-group-addon" id="basic-addonA1" style="width: 150px; text-align: left;">Total Wristbands</span>
+											<input type="text" id="bctotal" disabled="disabled" class="form-control" aria-describedby="basic-addonA1" placeholder="0" style="width:50px; text-align: center;">
+										</div>										
+									</div>
+									<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+									<div class="form-horizontal">
+										<div class="input-group input-group-sm">
+											<span class="input-group-addon" id="basic-addonA1" style="width: 150px; text-align: left;">Total Scanned</span>
+											<input type="text" id="bcscanned" disabled="disabled" class="form-control" aria-describedby="basic-addonA1" placeholder="0" style="width:50px; text-align: center;">
+										</div>										
+									</div>
+									<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+									<div class="form-horizontal">
+										<div class="input-group input-group-sm">
+											<span class="input-group-addon" id="basic-addonA1" style="width: 150px; text-align: left;">Total Remaining</span>
+											<input type="text" id="bcremaining" disabled="disabled" class="form-control" aria-describedby="basic-addonA1" placeholder="0" style="width:50px; text-align: center;">
+										</div>										
+									</div>
+									<div class="form-horizontal" style="height: 10px;">&nbsp;</div>
+									<div class="form-horizontal">
+										<div class="input-group input-group-sm">
+											<span class="input-group-addon" id="basic-addonbc1" style="width: 150px; text-align: left;">Scan Barcode Here</span>
+											<input type="text" id="bctoscan" maxlength="20" class="form-control" aria-describedby="basic-addonbc1" style="width:200px; text-align: center;">
+										</div>										
+									</div>
+								<div class="form-horizontal" style="height: 10px;">&nbsp;</div>
+								<div class="form-horizontal">
+									<table class="table table-condensed table-striped table-responsive" style="font-family: Calibri !important; font-size:14px !important;">
+										<thead style="border: 1px solid gray;">
+											<tr>
+												<td class="col-sm-6">Scanned Barcode Wrisbands</td>
+											</tr>
+										</thead>
+									</table>												
+								</div>
+								<div style="height: 30%; overflow-y: auto;">
+									<table class="table table-condensed table-striped table-responsive" style="font-family: Calibri !important; font-size:14px !important;">
+										<tbody id="bcwlist">
+										</tbody>
+									</table>												
+								</div>
+								<div>
+									<table class="table table-condensed table-striped table-responsive" style="font-family: Calibri !important; font-size:14px !important;">
+										<tfoot>
+											<tr>
+												<td colspan="2" class="col-sm-8"><h4>Total wristbands to issue</h4></td>
+												<td class="col-sm-1" style="text-align: right;" ><h4 id="bcwtotal">0</h4></td>
+											</tr>
+										</tfoot>
+									</table>
+								</div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal" style="visibility: hidden;" id="cbarcode">
+									<button type="button" class="btn btn-default" onclick="javascript:cancel_barcode_issuance();">Cancel</button>
+									<button type="button" class="btn btn-primary" onclick="javascript:presave_issuance();">Issue Wristbands</button>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+				
 				<div id="newbooking" class="container-fluid tab-pane fade">
 					<div class="row">
-						<div class="col-lg-12">
+						<!--<div class="col-lg-12">/-->
 							<h3>Booking Information</h3><hr>
 								<h5>Reservation Information</h5>
 								&nbsp;
@@ -603,9 +743,205 @@
 									</div>
 								</div>
 							</div>
-						</div>
+						<!--</div>/-->
 					</div>
 				</div>				
+				<div id="refunds" class="container-fluid tab-pane fade">
+					<div class="row">
+						<h3>Refunds</h3><hr>
+						<div class="form-horizontal" style="height: 5px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px;">Select a Booking</span>
+								<select id="selrestype" class="form-control" aria-describedby="basic-addonA1" style="width: 400px;">
+									<option value=0>- Select a Transaction record -</option>
+									<option value=1>201703-000001 : Dela Cruz, Romel S.</option>
+									<option value=2>201703-000002 : Villa-Abrille, Daryl M.</option>
+								</select>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px;">Sales Amount</span>
+								<label id="salesamt" class="form-control" aria-describedby="basic-addonA1" style="width: 100px; text-align: right;">0.00</label>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px;">Refund Amount</span>
+								<input id="refundamt" type="text" class="form-control" placeholder="0.00" style="text-align: right; width: 100px;">
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px;">Reason for refund</span>
+								<textarea id="refundreason" class="form-control" placeholder="Enter reason here." style="width: 400px; height: 100px;"></textarea>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px; text-align: left;">Refund Date/Time</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 200px; text-align: center;">2017-03-13 03:39:00</label>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px; text-align: left;">Refund Date/Time</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 200px; text-align: center;">2017-03-13 03:39:00</label>
+							</div>	
+						</div>
+						
+						<!--
+						<div class="form-horizontal" style="height: 5px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px;">Transaction Items</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 400px; vertical-align: middle;">
+									Note: Select the icon <i class="fa fa-share-square-o fa-1x" style="color: red;"></i> of the corresponding item to be refunded.
+								</label>
+							</div>	
+						</div>
+						
+						<div class="form-horizontal" style="height: 55%; overflow-y: auto; border: 1px dotted gray; width: 703px;">
+							<table class="table table-condensed table-striped table-responsive" style="font-family: Calibri !important; font-size:14px !important; width: 700px;">
+								<thead style="border: 1px solid gray;">
+									<tr>
+										<td class="col-sm-6">Item Description</td>
+										<td class="col-sm-2" style="text-align: center;">Quantity</td>
+										<td class="col-sm-2" style="text-align: right;">Price</td>
+										<td class="col-sm-2" style="text-align: right;">Sub Total</td>
+										<td class="col-sm-1">
+											<span class="fa-stack" data-toggle="tooltip" title="Refund">
+												<i class="fa fa-square-o fa-stack-2x"></i>
+												<i class="fa fa-caret-down fa-stack-1x"></i>
+											</span>	
+										</td>
+									</tr>
+								</thead>
+								<tbody style="border: 1px solid gray;">
+									<tr>
+										<td class="col-sm-6">Item 1</td>
+										<td class="col-sm-2" style="text-align: center;">2</td>
+										<td class="col-sm-2" style="text-align: right;">50.00</td>
+										<td class="col-sm-2" style="text-align: right;">100.00</td>
+										<td class="col-sm-1">
+											<span class="fa-stack" data-toggle="tooltip" title="Guest for Checkout">
+												<i class="fa fa-square-o fa-stack-2x"></i>
+												<i class="fa fa-share-square-o fa-stack-1x"></i>
+											</span>	
+										</td>
+									</tr>
+									<tr>
+										<td class="col-sm-6">Item 2</td>
+										<td class="col-sm-2" style="text-align: center;">2</td>
+										<td class="col-sm-2" style="text-align: right;">150.00</td>
+										<td class="col-sm-2" style="text-align: right;">300.00</td>
+										<td class="col-sm-1">
+											<span class="fa-stack" data-toggle="tooltip" title="Guest for Checkout">
+												<i class="fa fa-square-o fa-stack-2x"></i>
+												<i class="fa fa-share-square-o fa-stack-1x"></i>
+											</span>	
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="form-horizontal">
+							<table class="table table-condensed table-striped table-responsive" style="font-family: Calibri !important; font-size:14px !important; width: 700px;">
+								<tfoot>
+									<tr>
+										<td class="col-sm-10"><h4>Refund Total</h4></td>
+										<td class="col-sm-2" style="text-align: right;"><h4>0.00</h4></td>
+										<td class="col-sm-1">
+											<span class="fa-stack" data-toggle="tooltip" title="Refund" style="visibility: hidden;">
+												<i class="fa fa-square-o fa-stack-2x" style="visibility: hidden;"></i>
+												<i class="fa fa-caret-down fa-stack-1x" style="visibility: hidden;"></i>
+											</span>	
+										</td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+						/-->
+					</div>
+				</div>
+				<div id="reports" class="container-fluid tab-pane fade">
+					<div class="row">
+						<h3>Transaction Reports</h3><hr>
+						<div class="form-horizontal" style="height: 5px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px;">Transaction Summary</span>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px; text-align: left;">Total Bookings</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 50px; text-align: center;">0</label>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 100px; text-align: right;">0.00</label>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px; text-align: left;">Walk-In</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 50px; text-align: center;">0</label>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 100px; text-align: right;">0.00</label>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px; text-align: left;">Via Reservation</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 50px; text-align: center;">0</label>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 100px; text-align: right;">0.00</label>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px; text-align: left;">Total Sales</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 100px; text-align: right;">0.00</label>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 10px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px;">Sales per Accomodation</span>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px; text-align: left;">Umbrella</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 50px; text-align: center;">0</label>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 100px; text-align: right;">0.00</label>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px; text-align: left;">Standard Rooms</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 50px; text-align: center;">0</label>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 100px; text-align: right;">0.00</label>
+							</div>	
+						</div>
+						<div class="form-horizontal" style="height: 2px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 120px; text-align: left;">Family Rooms</span>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 50px; text-align: center;">0</label>
+								<label class="form-control" aria-describedby="basic-addonA1" style="width: 100px; text-align: right;">0.00</label>
+							</div>	
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<!-- Error notifier /-->

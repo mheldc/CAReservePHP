@@ -71,6 +71,13 @@
 		itemst		= $('#isubtotal'),
 		itmtotal	= $('#igtotal'),
 		
+		bctotal 	= $('#bctotal'),
+		bcscan		= $('#bcscanned'),
+		bcremain	= $('#bcremaining'),
+		bctoscan	= $('#bctoscan'),
+		bcwlist		= $('#bcwlist'),
+		wbtotal		= $('#bcwtotal'),
+		
 	// Function variables
 		rateflag 	= false,
 		srcform		= null,
@@ -90,6 +97,13 @@ $(function(){
 	get_accomodation_types();
 	displayitemtypes();
 	guestrates();
+	
+	setInterval(function(){
+		if (blist.length > 0) {
+			loadactivebookings();
+		}
+	},
+	5000);
 	
 	restype.on('change', function(){
 		if (restype.val() == 1) {
@@ -278,19 +292,19 @@ $(function(){
 		else if (srcform == 'booking_addguest') {
 			var adata, cdata, c2data, gdata = [];
 			if (adultcnt.val() > 0 || !adultcnt.val() == '' || !adultcnt.val() == undefined) {
-				adata = {bid: selbkid, itype: 2, idesc: 'Additional Guest (Adult) x ' + adultcnt.val(), iqty: adultcnt.val(), iamt: adultst.val()};
+				adata = {bid: selbkid, itype: 2, idesc: 'Additional Guest (Adult) x ' + adultcnt.val(), iqty: adultcnt.val(), iamt: adultst.val(), gtype:'a'};
 				gdata.push(adata);
 			}
 			if (childcnt.val() > 0 || !childcnt.val() == '' || !childcnt.val() == undefined) {
-				cdata = {bid: selbkid, itype: 2, idesc: 'Additional Guest (Child) x ' + childcnt.val(), iqty: childcnt.val(), iamt: childst.val()};
+				cdata = {bid: selbkid, itype: 2, idesc: 'Additional Guest (Child) x ' + childcnt.val(), iqty: childcnt.val(), iamt: childst.val(), gtype:'b'};
 				gdata.push(cdata);
 			}
 			if (childcnt2.val() > 0 || !childcnt2.val() == '' || !childcnt2.val() == undefined) {
-				c2data = {bid: selbkid, itype: 2, idesc: 'Additional Guest (Child 2 y/o below) x ' + childcnt2.val(), iqty: childcnt2.val(), iamt: childst2.val()};
+				c2data = {bid: selbkid, itype: 2, idesc: 'Additional Guest (Child 2 y/o below) x ' + childcnt2.val(), iqty: childcnt2.val(), iamt: childst2.val(), gtype:'c'};
 				gdata.push(c2data);
 			}
 			guestaddition(gdata);
-			
+			loadactivebookings();
 		}
 		else if (srcform == 'transfer_accomodation') {
 			transferdata = [{bid: selbkid,
@@ -303,9 +317,9 @@ $(function(){
 		else if (srcform == 'add_request_item') {
 			var reqitems = {};
 			if (requestitems.length == 0) {
-				reqitems = {idx: 0, itype: itemtype.val(), ritem: item.val(), ritemdesc: $('#idesc option:selected').text(), rqty: itemqty.val(), ist: parseFloat(itemst.val().replace(',',''))}
+				reqitems = {bid: selbkid, idx: 0, itype: itemtype.val(), ritem: item.val(), ritemdesc: $('#idesc option:selected').text(), rqty: itemqty.val(), ist: parseFloat(itemst.val().replace(',',''))}
 			} else {
-				reqitems = {idx: (requestitems.length - 1), itype: itemtype.val(), ritem: item.val(), ritemdesc: $('#idesc option:selected').text(), rqty: itemqty.val(), ist: parseFloat(itemst.val().replace(',',''))}
+				reqitems = {bid: selbkid, idx: (requestitems.length - 1), itype: itemtype.val(), ritem: item.val(), ritemdesc: $('#idesc option:selected').text(), rqty: itemqty.val(), ist: parseFloat(itemst.val().replace(',',''))}
 			}
 			
 			requestitems.push(reqitems);
@@ -313,6 +327,7 @@ $(function(){
 			srcform = null;
 		}		
 		else if (srcform == 'cancel_request_item') {
+			itemtype.val(0);
 			item.empty();
 			itemqty.val('');
 			itemprice.val('');
@@ -321,6 +336,28 @@ $(function(){
 			itmtotal.empty().append('0.00');
 			requestitems = [];
 			$('#crequestitem').trigger('click');
+		}
+		else if (srcform == 'save_request_item') {
+			if (requestitems.length > 0) {
+				save_request_items(requestitems);
+				loadactivebookings();
+			} else {
+				errmsg.empty().append('There are no items to be saved.');
+				trgerr.trigger('click');
+			}
+		}
+		else if (srcform == 'cancel_wb_issuance') {
+			$('#cbarcode').trigger('click');
+			scannedbcodes = [];
+			bcwlist.empty();
+			bcremain.val(parseInt(bctotal.val()));
+			bcscan.val(0);
+			bcwtotal.empty().append(0);
+			infmsg.empty().append('Wristbands/Passes issuance cancelled.');
+			trginf.trigger('click');
+		}
+		else if (srcform == 'save_wb_issuance') {
+			register_passes(scannedbcodes);
 		}
 		else {
 			return false;
@@ -487,6 +524,38 @@ $(function(){
 	}).on('blur', function(){
 		var isubtotal = parseFloat(itemqty.val()) * parseFloat(itemprice.val().replace(',',''));
 		itemst.val(isubtotal.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+	});
+
+	bctoscan.on('keypress', function(){
+		if (bctoscan.val().length == 9) {
+			setTimeout(
+				function(){	
+					for(i = 0; i < scannedbcodes.length; i++){
+						if (scannedbcodes[i]['bcode'] == bctoscan.val()) {
+							errmsg.empty().append('Passes you entered/scanned already exists. System does not accept duplicates.');
+							trgerr.trigger('click');
+							bctoscan.val('').focus();
+							return false;
+						}
+					}
+
+					bctoscan.removeAttr('disabled');
+					var tbcw = {bid: selbkid, bcode: bctoscan.val()};
+					scannedbcodes.push(tbcw);
+					bcscan.val(scannedbcodes.length);
+					wbtotal.empty().append(scannedbcodes.length);
+					bcremain.val(parseInt(bctotal.val()) - parseInt(scannedbcodes.length));
+					bctoscan.val('').focus();
+					scanned_barcodes(scannedbcodes);
+					
+					if (parseInt(scannedbcodes.length) == parseInt(bctotal.val())) {
+						bctoscan.attr('disabled','disabled');
+						bctoscan.val('');
+						infmsg.empty().append('You have reached the maximum number of passes to scan.');
+						trginf.trigger('click');
+					}
+				}, 2000);
+		}
 	});
 });
 
@@ -697,13 +766,17 @@ function loadactivebookings() {
 			var obj = JSON.parse(r);
 			blist.empty();
 			for(i = 0; i < obj.length; i++){
-				var istimeout = 'visibility:hidden;', withpayables = 'style="visibility:hidden;"';
+				var istimeout = 'visibility:hidden;', withpayables = 'style="visibility:hidden;"', withbctoissue = 'style="visibility:hidden;"';
 				if (obj[i]['timeout'] == "1") {
 					istimeout = 'visibility:visible;';
 				}
 				
 				if (obj[i]['unpaid'] == "1") {
 					withpayables = 'style="visibility:visible;"';
+				}
+				
+				if (obj[i]['bctoissue'] > 0) {
+					withbctoissue = 'style="visibility:visible;"';
 				}
 				
 				var el = '<tr style="width:100%;">' +
@@ -752,7 +825,7 @@ function loadactivebookings() {
 								'</a>' +									
 							'</td>' +
 							'<td class="col-sm-1">' +
-								'<a href="#" data-toggle="modal" data-target="#guestreqmodal" onclick="javascript:set_booking_id('+ obj[i]['bkid'] +');">' +
+								'<a href="#" data-toggle="modal" data-target="#barcodemodal" ' + withbctoissue + ' onclick="javascript:prebarcode_issuance('+ obj[i]['bkid'] +','+ obj[i]['bctoissue'] +',' + obj[i]['bcqty'] + ');">' +
 									'<span class="fa-stack">' +
 										'<i class="fa fa-square-o fa-stack-2x"></i>' +
 										'<i class="fa fa-barcode fa-stack-1x"></i>' +
@@ -810,10 +883,16 @@ function loaditemsforpayment(bid) {
 }
 
 function prepaymentsettlement(bkid) {
-	srcform = 'booking_payment';
-	selbkid = bkid;
-	conmsg.empty().append('Confirm payment settlement?');
-	trgcon.trigger('click');
+	if (parseFloat(rcvpymt.val().replace(',','')) >= parseFloat(totalpymt.text().replace('P ', '').replace(',',''))) {
+		srcform = 'booking_payment';
+		selbkid = bkid;
+		conmsg.empty().append('Confirm payment settlement?');
+		trgcon.trigger('click');		
+	} else {
+		rcvpymt.focus();
+		errmsg.empty().append('Tendered amount required. Please enter the amount on the Payment Received field.');
+		trgerr.trigger('click');
+	}
 }
 
 function tag_payment(bkid) {
@@ -831,11 +910,28 @@ function tag_payment(bkid) {
 				loadactivebookings();				
 				infmsg.empty().append('Payment already settled.');
 				trginf.trigger('click');
-				settleclose.trigger('click');
+				//settleclose.trigger('click');
 			} else {
 				errmsg.empty().append('There\'s an error tagging payments for this booking. Please call your system provider for support.');
 				trgerr.trigger('click');
 			}
+		},
+		fail: function(jqXHR, textStatus){
+			console.log('Error occured: ' + textStatus);
+		},
+		done: function(r){
+			console.log('Done processing data.');
+		}
+	});
+}
+
+function printreceipt(bid) {
+	$.ajax({
+		url: wwwnavi + 'ca/receipt',
+		type: 'get',
+		data: {pdata:bid},
+		success: function(r){
+			var obj = JSON.parse(r);
 		},
 		fail: function(jqXHR, textStatus){
 			console.log('Error occured: ' + textStatus);
@@ -1115,6 +1211,49 @@ function cancel_request_items() {
 	trgcon.trigger('click');
 }
 
+function presave_items() {
+	srcform = 'save_request_item';
+	conmsg.empty().append('Confirm saving of items to request?');
+	trgcon.trigger('click');
+	
+}
+
+function save_request_items(d) {
+	$.ajax({
+		url: wwwnavi + 'ca/requestitems',
+		type: 'post',
+		data: {pdata:d},
+		success: function(r){
+			var obj = JSON.parse(r);
+			if (obj.flag == false) {
+				errmsg.empty().append('Error saving items for request. Please contact your system provider for support.');
+				trgerr.trigger('click');
+			}
+			else {
+				itemtype.val(0);
+				item.empty();
+				itemqty.val('');
+				itemprice.val('');
+				itemst.val('');
+				itemlist.empty();
+				itmtotal.empty().append('0.00');
+				requestitems = [];
+				$('#crequestitem').trigger('click');
+				infmsg.empty().append('Item request have been saved. Please settle payment to the cashier.');
+				trginf.trigger('click');
+			}
+			
+		},
+		fail: function(jqXHR, textStatus){
+			errmsg.empty().append('Request failed : ' + textStatus);
+			trgerr.trigger('click');
+		},
+		done: function(resdata){
+			console.log('Done processing data.' + resdata);
+		}
+	});
+}
+
 function displayitemtypes() {
 	$.ajax({
 		url: wwwnavi + 'ca/itemtypes',
@@ -1147,6 +1286,85 @@ function displayitems(itype) {
 			item.empty().append('<option value="0">- Select an Item -</option>');
 			for(i = 0; i < obj.length; i++){
 				item.append('<option value="' + obj[i]['iid'] + '">' + obj[i]['idesc'] + '</option>');
+			}
+		},
+		fail: function(jqXHR, textStatus){
+			errmsg.empty().append('Request failed : ' + textStatus);
+			trgerr.trigger('click');
+		},
+		done: function(resdata){
+			console.log('Done processing data.' + resdata);
+		}
+	});
+}
+
+function prebarcode_issuance(bid, bti, bcq) {
+	selbkid = bid;
+	bctotal.val(bti);
+	bcscan.val(bcq);
+	bcremain.val(parseInt(bti) - parseInt(bcscan.val()));
+}
+
+function scanned_barcodes(bc) {
+	if (bc.length > 0) {
+		bcwlist.empty();
+		for(i = 0; i < bc.length; i++){
+			var el = '<tr>' + 
+						'<td class="col-sm-6">' + bc[i]['bcode'] + '</td>' +
+						'<!--/'+
+						'<td class="col-sm-1">' +
+							'<span class="fa-stack">' +
+								'<i class="fa fa-square-o fa-stack-2x"></i>' +
+								'<i class="fa fa-caret-down fa-stack-1x"></i>' +
+							'</span>' +
+						'</td>' +
+						'/-->'+
+					'</tr>';
+			bcwlist.append(el);
+		}
+	}
+}
+
+function cancel_barcode_issuance() {
+	srcform = 'cancel_wb_issuance';
+	conmsg.empty().append('Are you sure you want to cancel wristband/passes issuance?');
+	trgcon.trigger('click');
+}
+
+function presave_issuance() {
+	if (scannedbcodes.length == 0) {
+		errmsg.empty().append('Unable to continue issuance of passes/wristbands due to no wristband/passes codes have not been scanned into the system.');
+		trgerr.trigger('click');	
+	} else if (bcremain.val() > 0) {
+		errmsg.empty().append('Unable to continue issuance of passes/wristbands due to not all wristband/passes codes have been scanned into the system.');
+		trgerr.trigger('click');
+	}
+	else {
+		srcform = 'save_wb_issuance';
+		conmsg.empty().append('Continue wristband/passes issuance?');
+		trgcon.trigger('click');		
+	}
+}
+
+function register_passes(d) {
+	$.ajax({
+		url: wwwnavi + 'ca/issueresortpasses',
+		type: 'post',
+		data: {pdata:d},
+		success: function(r){
+			var obj = JSON.parse(r);
+			if (obj.flag == true) {
+				infmsg.empty().append('Wrisbands/passes have been logged. Guest must wear the pass before entering the resort.');
+				trginf.trigger('click');
+				wbtotal.empty().append('0');
+				bcwlist.empty();
+				bctoscan.removeAttr('disabled');
+				$('#cbarcode').trigger('click');
+				loadactivebookings();
+				scannedbcodes = [];
+			} else {
+				errmsg.empty().append('Problem occured while logging/registering passes on the server. Please contact your system provider for support.');
+				trgerr.trigger('click');
 			}
 		},
 		fail: function(jqXHR, textStatus){

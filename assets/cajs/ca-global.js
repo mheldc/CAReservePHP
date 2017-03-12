@@ -9,6 +9,7 @@ var wwwhome = 'http://localhost:8080/careserve',
 	transferdata	= [],
 	requestitems	= [],
 	iteminfo		= [],
+	scannedbcodes	= [],
 	selguestid		= 0,
 	selbkid			= 0,
 	selitemid		= 0;
