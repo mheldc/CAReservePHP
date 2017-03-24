@@ -69,25 +69,20 @@
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Setup &nbsp;<span class="caret"></span></a>
 						<ul class="dropdown-menu inverse-dropdown" aria-labelledby="dropdownMenu1">
 							<li><a href="#">Users</a></li>
-							<li><a href="#">Rooms</a></li>
+							<li><a href="<?php echo base_url().'rooms_c';?>">Rooms</a></li>
 							<li style="display: none;"><a href="#">Tools and Utilities</a></li>
 							<li style="display: none;"><a href="#">Promos</a></li>
-							<li <?php echo $disp_inventory; ?>><a href="#">Inventory</a></li>
+							<li <?php echo $disp_inventory; ?>><a href="<?php echo base_url().'inventory_c';?>">Inventory</a></li>
 							<!--
 							<li role="separator" class="divider"></li>
 							<li><a href="#">Separated link</a></li>
 							//-->
 						</ul>
 					</li>
-					<li>
-						<a href="#">About</a>
-					</li>
-					<li>
-						<a href="#">Contact</a>
-					</li>
-					<li>
-						<a href="<?php echo base_url().'ca/logout';?>">Sign Out [<?php echo $disp_user; ?>]</a>
-					</li>
+					<li><a href="#" onclick="javascript:window.open('<?php echo base_url().'inv_c';?>');">Served Queue </li>
+					<li><a href="#">About</a></li>
+					<li><a href="#">Contact</a></li>
+					<li><a href="<?php echo base_url().'ca/logout';?>">Sign Out [<?php echo $disp_user; ?>]</a></li>
 				</ul>
 			</div>
 			<div id="ca_signin" class="container" style="position: fixed; top: 70px; <?php echo $disp_login; ?>">

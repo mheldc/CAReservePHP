@@ -16,20 +16,10 @@
 		<div id="sidebar-wrapper">
 			<div class="form-horizontal">
 				<ul class="sidebar-nav">
-					<li class="sidebar-brand">
-						<a href="<?php echo $home_page; ?>">
-							Costa Abrille Resort
-						</a>
-					</li>
-					<li>
-						<a href="<?php echo $home_page; ?>">Home</a>
-					</li>
-					<li>
-						<a href="#activebooking" data-toggle="tab" onclick="javascript:loadactivebookings();">Active Bookings</a>
-					</li>
-					<li>
-						<a href="#newbooking" data-toggle="tab">New Booking</a>
-					</li>
+					<li class="sidebar-brand"><a href="<?php echo $home_page; ?>">Costa Abrille Resort</a></li>
+					<li><a href="<?php echo $home_page; ?>">Home</a></li>
+					<li><a href="#activebooking" data-toggle="tab" onclick="javascript:loadactivebookings();">Active Bookings</a></li>
+					<li><a href="#newbooking" data-toggle="tab">New Booking</a></li>
 					<li style="display: none;">
 						<a href="#refunds" data-toggle="tab">Refunds</a>
 					</li>
@@ -320,7 +310,7 @@
 									</div>
 								</div>
 								<div class="modal-footer">
-									<button id="taccclose" type="button" class="btn btn-default" data-dismiss="modal" onclick="javascript:clearaccomodation();">>Close</button>
+									<button id="taccclose" type="button" class="btn btn-default" data-dismiss="modal" onclick="javascript:clearaccomodation();">Close</button>
 									<button id="taccconfirm" type="button" class="btn btn-primary" onclick="javascript:confirmtransfer();">Confirm Transfer</button>
 								</div>
 							</div>
@@ -672,7 +662,7 @@
 															<input id="searchedguest" type="text" class="form-control" placeholder="Guest Last Name or First Name">
 														</div>
 														<div class="col-sm-2">
-															<button id="findguest" class="btn btn-default btn-sm">Go</button>
+															<button id="bkg_find" type="button" class="btn btn-default btn-sm">Go</button>
 														</div>
 													</div>
 												</div>

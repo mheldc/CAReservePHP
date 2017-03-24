@@ -93,7 +93,9 @@ $(function(){
 	$('#rEventDate').datetimepicker({format:'DD-MMM-YYYY'});
 	$('#rEventTimeStart').datetimepicker({format:'hh:mm A'});
 	$('#rEventTimeEnd').datetimepicker({format:'hh:mm A'});	
-	$('#thisisdt').datetimepicker({format:'hh:mm A'});	
+	$('#resinqdt').datetimepicker({format:'DD-MMM-YYYY'});
+	$('#reslogdt').datetimepicker({format:'DD-MMM-YYYY'});
+	$('#occ_date').datetimepicker({format:'DD-MMM-YYYY hh:mm A'});
 	
 	// Booking
 	$('[data-toggle="tooltip"]').tooltip();
@@ -132,6 +134,10 @@ $(function(){
 		get_available_transfer_rooms(toacct.val());
 	});
 	
+	$('#res_acctype').on('change', function(){
+		get_available_rooms_rinq($('#res_acctype').val());
+	});
+	
 	toacc.on('change', function(){
 		get_room_details_transfer(toacc.val());
 	});
@@ -161,6 +167,7 @@ $(function(){
 		$.ajax({
 			url	: wwwnavi + 'ca/guestlist',
 			type: 'get',
+			data: {pdata:''},
 			success : function(r) {
 				var obj = JSON.parse(r);
 				console.log(r);
@@ -171,6 +178,105 @@ $(function(){
 										'<td class="col-sm-7">' + obj[i]['gname'] + '</td>' + 
 										'<td class="col-sm-1">' + 
 											'<a href="#" onclick="javascript:loadguestinfo(' + obj[i]['id'] + ')">' + 
+												'<span class="fa-stack">' + 
+													'<i class="fa fa-square-o fa-stack-2x"></i>' + 
+													'<i class="fa fa-vcard-o fa-stack-1x"></i>' + 
+												'</span>' + 				
+											'</a>' + 									
+										'</td>' + 
+									'</tr>');
+				}
+			},
+			fail : function(jqXHR, textStatus) {
+				console.log('Error occurred : ' + textStatus);
+			},
+			done : function(r) {
+				console.log('Loding of guest list succeeded.');
+			}
+		});
+	});
+	
+	$('#resg_list').on('click', function(){
+		$.ajax({
+			url	: wwwnavi + 'ca/guestlist',
+			type: 'get',
+			data:{pdata:''},
+			success : function(r) {
+				var obj = JSON.parse(r);
+				console.log(r);
+				tblguest.empty();
+				for(i=0; i < obj.length; i++){
+					tblguest.append('<tr>' + 
+										'<!-- <td class="col-sm-1">' + obj[i]['id'] + '</td> /-->' + 
+										'<td class="col-sm-7">' + obj[i]['gname'] + '</td>' + 
+										'<td class="col-sm-1">' + 
+											'<a href="#" onclick="javascript:loadguestinfo_res(' + obj[i]['id'] + ')">' + 
+												'<span class="fa-stack">' + 
+													'<i class="fa fa-square-o fa-stack-2x"></i>' + 
+													'<i class="fa fa-vcard-o fa-stack-1x"></i>' + 
+												'</span>' + 				
+											'</a>' + 									
+										'</td>' + 
+									'</tr>');
+				}
+			},
+			fail : function(jqXHR, textStatus) {
+				console.log('Error occurred : ' + textStatus);
+			},
+			done : function(r) {
+				console.log('Loding of guest list succeeded.');
+			}
+		});
+	});
+
+	$('#bkg_find').on('click', function(){
+		$.ajax({
+			url	: wwwnavi + 'ca/guestlist',
+			type: 'get',
+			data: {pdata:$('#searchedguest').val()},
+			success : function(r) {
+				var obj = JSON.parse(r);
+				console.log(r);
+				tblguest.empty();
+				for(i=0; i < obj.length; i++){
+					tblguest.append('<tr>' + 
+										'<!-- <td class="col-sm-1">' + obj[i]['id'] + '</td> /-->' + 
+										'<td class="col-sm-7">' + obj[i]['gname'] + '</td>' + 
+										'<td class="col-sm-1">' + 
+											'<a href="#" onclick="javascript:loadguestinfo(' + obj[i]['id'] + ')">' + 
+												'<span class="fa-stack">' + 
+													'<i class="fa fa-square-o fa-stack-2x"></i>' + 
+													'<i class="fa fa-vcard-o fa-stack-1x"></i>' + 
+												'</span>' + 				
+											'</a>' + 									
+										'</td>' + 
+									'</tr>');
+				}
+			},
+			fail : function(jqXHR, textStatus) {
+				console.log('Error occurred : ' + textStatus);
+			},
+			done : function(r) {
+				console.log('Loding of guest list succeeded.');
+			}
+		});
+	});
+	
+	$('#resg_find').on('click', function(){
+		$.ajax({
+			url	: wwwnavi + 'ca/guestlist',
+			type: 'get',
+			data: {pdata:$('#searchedguest').val()},
+			success : function(r) {
+				var obj = JSON.parse(r);
+				console.log(r);
+				tblguest.empty();
+				for(i=0; i < obj.length; i++){
+					tblguest.append('<tr>' + 
+										'<!-- <td class="col-sm-1">' + obj[i]['id'] + '</td> /-->' + 
+										'<td class="col-sm-7">' + obj[i]['gname'] + '</td>' + 
+										'<td class="col-sm-1">' + 
+											'<a href="#" onclick="javascript:loadguestinfo_res(' + obj[i]['id'] + ')">' + 
 												'<span class="fa-stack">' + 
 													'<i class="fa fa-square-o fa-stack-2x"></i>' + 
 													'<i class="fa fa-vcard-o fa-stack-1x"></i>' + 
@@ -601,11 +707,13 @@ function get_accomodation_types() {
 			roomtype.empty().append('<option value="0"> - Select Accomodation Type - </option>');
 			fromacct.empty().append('<option value="0"> - Select Accomodation Type - </option>');
 			toacct.empty().append('<option value="0"> - Select Accomodation Type - </option>');
+			$('#res_acctype').empty().append('<option value="0"> - Select Accomodation Type - </option>');
 			
 			for(i=0; i < obj.length; i++){
 				roomtype.append('<option value="' + obj[i]['id'] + '">' + obj[i]['typedesc'] + '</option>');
 				fromacct.append('<option value="' + obj[i]['id'] + '">' + obj[i]['typedesc'] + '</option>');
 				toacct.append('<option value="' + obj[i]['id'] + '">' + obj[i]['typedesc'] + '</option>');
+				$('#res_acctype').append('<option value="' + obj[i]['id'] + '">' + obj[i]['typedesc'] + '</option>');
 			}
 		},
 		fail: function(jqXHR, textStatus){
@@ -652,6 +760,28 @@ function get_available_transfer_rooms(rtid) {
 			toacc.empty().append('<option value="0"> - Select an Available Room - </option>')
 			for(i=0; i < obj.length; i++){
 				toacc.append('<option value="' + obj[i]['id'] + '">' + obj[i]['room'] + '</option>')
+			}
+		},
+		fail: function(jqXHR, textStatus){
+			console.log('Error occured: ' + textStatus);
+		},
+		done: function(r){
+			console.log('Done processing data');
+		}
+	});
+}
+
+function get_available_rooms_rinq(rtid) {
+	$.ajax({
+		url: wwwnavi + 'ca/roomlist',
+		type: 'get',
+		data: {id:rtid},
+		success: function(r){
+			var obj = JSON.parse(r);
+			
+			$('#res_acc').empty().append('<option value="0"> - Select an Available Room - </option>')
+			for(i=0; i < obj.length; i++){
+				$('#res_acc').append('<option value="' + obj[i]['id'] + '">' + obj[i]['room'] + '</option>')
 			}
 		},
 		fail: function(jqXHR, textStatus){
@@ -750,6 +880,43 @@ function loadguestinfo(gid) {
 			landline.attr('readonly','readonly');
 			mobile.attr('readonly','readonly');
 			email.attr('readonly','readonly');
+			selguestid = gid;
+		},
+		fail	: function(jqXHR, textStatus) {
+			console.log('Error occured: ' + textStatus);
+		},
+		done	: function(r) {
+			console.log('Done processing data');
+		}
+	});
+}
+
+function loadguestinfo_res(gid) {
+	$.ajax({
+		url		: wwwnavi + 'ca/guestinfo',
+		type	: 'get',
+		data 	: {pdata:gid},
+		success	: function(r) {
+			var obj = JSON.parse(r);
+			for(i = 0; i < obj.length; i++){
+				$('#resg_salutation').val(obj[i]['salutation']);
+				$('#resg_lname').val(obj[i]['lastname']);
+				$('#resg_fname').val(obj[i]['firstname']);
+				$('#resg_mname').val(obj[i]['middlename']);
+				$('#resg_addr').val(obj[i]['address']);
+				$('#resg_landline').val(obj[i]['landline']);
+				$('#resg_mobile').val(obj[i]['mobile']);
+				$('#resg_email').val(obj[i]['email']);
+			}
+			$('#glistclose').trigger('click');
+			$('#resg_salutation').attr('disabled','disabled');
+			$('#resg_lname').attr('readonly','readonly');
+			$('#resg_fname').attr('readonly','readonly');
+			$('#resg_mname').attr('readonly','readonly');
+			$('#resg_addr').attr('readonly','readonly');
+			$('#resg_landline').attr('readonly','readonly');
+			$('#resg_mobile').attr('readonly','readonly');
+			$('#resg_email').attr('readonly','readonly');
 			selguestid = gid;
 		},
 		fail	: function(jqXHR, textStatus) {
@@ -1483,6 +1650,164 @@ function register_passes(d) {
 		}
 	});
 }
+
+function reset_inquiry() {
+	$('#resinqdt').val('');
+	$('#res_acctype').val(0);
+	$('#res_time').val(0);
+	$('#inqlist').empty();
+}
+
+function display_inqresult() {
+	$.ajax({
+		url: wwwnavi + 'ca/login',
+		type: 'get',
+		data: {pdata:{'lid':uid.val(),'lpw':upw.val()}},
+		success: function(r){
+			var obj = JSON.parse(r);
+			if (obj.flag == true) {
+				//infmsg.empty().append(obj.mesg);
+				//trginf.trigger('click');
+				location.reload();
+			} else {
+				errmsg.empty().append(obj.mesg);
+				trgerr.trigger('click');
+			}
+		},
+		fail: function(jqXHR, textStatus){
+			errmsg.empty().append('Request failed : ' + textStatus);
+			trgerr.trigger('click');
+		},
+		done: function(r){
+			console.log('Done processing data.' + r);
+		}
+	});
+}
+
+
+/* Occular Requests */
+function get_occular_requests() {
+	var el = $('#occularlist');
+	$.ajax({
+		url: wwwnavi + 'ca/occular',
+		type: 'get',
+		success: function(r){
+			var obj = JSON.parse(r);
+			el.empty();
+			for(i = 0; i < obj.length; i++){
+				el.append('<tr>' +
+								'<td class="col-sm-3" style="text-align: left;">' + obj[i]['gname'] + '</td>' +
+								'<td class="col-sm-6" style="text-align: left;">jdc@email.example.com/1234567/123456789011</td>' +
+								'<td class="col-sm-1" style="text-align: left;">5</td>' +
+								'<td class="col-sm-2" style="text-align: left;">2017-Mar-31 03:00 PM</td>' +
+								'<td class="col-sm-1">' +
+									'<a href="#" style="text-decoration:none; color:black;" onclick="javascript:tag_occular_done(' + obj[i]['id'] + ');">' +
+										'<span class="fa-stack" data-toggle="tooltip" title="Occular Complete">' +
+											'<i class="fa fa-square-o fa-stack-2x"></i>' +
+											'<i class="fa fa-thumbs-o-up fa-stack-1x"></i>' +
+										'</span>' +													
+									'</a>' +
+								'</td>' +
+								'<td class="col-sm-1">' +
+									'<a href="#" style="text-decoration:none; color:black;" onclick="javascript:tag_occular_cancelled(' + obj[i]['id'] + ');">' +
+										'<span class="fa-stack" data-toggle="tooltip" title="Occular Complete">' +
+											'<i class="fa fa-square-o fa-stack-2x"></i>' +
+											'<i class="fa fa-times fa-stack-1x"></i>' +
+										'</span>' +													
+									'</a>' +
+								'</td>' +
+							'</tr>');
+			}
+		},
+		fail: function(jqXHR, textStatus){
+			errmsg.empty().append('Request failed : ' + textStatus);
+			trgerr.trigger('click');
+		},
+		done: function(r){
+			console.log('Done processing data.' + r);
+		}
+	});
+}
+
+function save_occular_request(d) {
+	$.ajax({
+		url: wwwnavi + 'ca/regoccular',
+		type: 'post',
+		data: {pdata:d},
+		success: function(r){
+			var obj = JSON.parse(r);
+			if (obj.flag == true) {
+				//infmsg.empty().append(obj.mesg);
+				//trginf.trigger('click');
+				location.reload();
+			} else {
+				errmsg.empty().append(obj.mesg);
+				trgerr.trigger('click');
+			}
+		},
+		fail: function(jqXHR, textStatus){
+			errmsg.empty().append('Request failed : ' + textStatus);
+			trgerr.trigger('click');
+		},
+		done: function(r){
+			console.log('Done processing data.' + r);
+		}
+	});
+}
+
+function tag_occular_done(oid) {
+	$.ajax({
+		url: wwwnavi + 'ca/regoccular',
+		type: 'post',
+		data: {pdata:d},
+		success: function(r){
+			var obj = JSON.parse(r);
+			if (obj.flag == true) {
+				//infmsg.empty().append(obj.mesg);
+				//trginf.trigger('click');
+				location.reload();
+			} else {
+				errmsg.empty().append(obj.mesg);
+				trgerr.trigger('click');
+			}
+		},
+		fail: function(jqXHR, textStatus){
+			errmsg.empty().append('Request failed : ' + textStatus);
+			trgerr.trigger('click');
+		},
+		done: function(r){
+			console.log('Done processing data.' + r);
+		}
+	});
+}
+
+function tag_occular_cancelled(oid) {
+	$.ajax({
+		url: wwwnavi + 'ca/regoccular',
+		type: 'post',
+		data: {pdata:d},
+		success: function(r){
+			var obj = JSON.parse(r);
+			if (obj.flag == true) {
+				//infmsg.empty().append(obj.mesg);
+				//trginf.trigger('click');
+				location.reload();
+			} else {
+				errmsg.empty().append(obj.mesg);
+				trgerr.trigger('click');
+			}
+		},
+		fail: function(jqXHR, textStatus){
+			errmsg.empty().append('Request failed : ' + textStatus);
+			trgerr.trigger('click');
+		},
+		done: function(r){
+			console.log('Done processing data.' + r);
+		}
+	});
+}
+
+
 
 function auth_user() {
 	if (uid.val().length == 0 || uid.val() == undefined) {

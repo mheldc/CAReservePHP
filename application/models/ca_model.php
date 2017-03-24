@@ -20,6 +20,13 @@
 			return $rs->result_array();
 		}
 		
+		function getroomlist($roomtype = 0){
+			$rs = $this->db->query('select id, concat(roomcode, ":", roomdesc) as room
+									from ca_rooms
+									where typeid = ?;', $roomtype);
+			return $rs->result_array();
+		}
+		
 		function getroominfo($roomid = 0){
 			$rs = $this->db->query('select a.`typeid` as rtype,
 											a.`id` as room,
@@ -232,13 +239,22 @@
 		}
 		
 		function getguestlist($searchparam = ''){
-			$qry = "select `id`, concat(`lastname`, ', ', `firstname`, ' ', 
-							case length(trim(both from `middlename`)) when 0 then '' else concat(substring(`middlename`,1,1), '.') end) as gname
-					from `ca_guest_info`
-					order by `lastname`, `firstname` asc";
-			$result = $this->db->query($qry);
-			
-			return $result->result_array();
+			if($searchparam == ''){
+				$qry = "select `id`, concat(`lastname`, ', ', `firstname`, ' ', 
+								case length(trim(both from `middlename`)) when 0 then '' else concat(substring(`middlename`,1,1), '.') end) as gname
+						from `ca_guest_info`
+						order by `lastname`, `firstname` asc;";
+				$result = $this->db->query($qry);
+				return $result->result_array();
+			} else {
+				$qry = "select `id`, concat(`lastname`, ', ', `firstname`, ' ', 
+								case length(trim(both from `middlename`)) when 0 then '' else concat(substring(`middlename`,1,1), '.') end) as gname
+						from `ca_guest_info`
+						where (`lastname` like concat('%', ?, '%') or `firstname` like concat('%', ?, '%'))
+						order by `lastname`, `firstname` asc;";
+				$result = $this->db->query($qry, array($searchparam, $searchparam));
+				return $result->result_array();
+			}
 		}
 		
 		function getguestinfo($gid = 0){
@@ -554,6 +570,62 @@
 			} else {
 				return array('flag' => false);
 			}
+		}
+		
+		function get_occular_requests(){
+			$qry = "select 	`id` as oid, 
+							date_format(`occdate`,'%d-%M-%Y %h:%i %p') as odt,
+							concat(`lastname`, ', ', `firstname`, case length(trim(both from `middlename`)) when 0 then '' else concat(' ',substring(`middlename`,1,1),'.') end) as gname,
+							concat(case length(trim(both from `address`)) when 0 then '' else concat(`address`, '<br />') end,
+								   case length(trim(both from `contactnos`)) when 0 then '' else concat(`contactnos`, '<br />') end,
+								   case length(trim(both from `email`)) when 0 then '' else concat(`email`, '<br />') end) as cinfo,
+							`estguestcnt` as gcnt,
+							`occdate` as visitdt
+					from `ca_occular_requests`
+					where `visitflag` = false 
+					  and `cancelflag` = false;";
+			$rs = $this->db->query($qry);
+			return $rs->result_array();
+		}
+		
+		function register_occular_request($d){
+			$qry = "insert into `ca_occular_requests`
+						(`occdate`, `lastname`, `firstname`, `middlename`, `address`, `contactnos`, `email`, `estguestcnt`, `createdbyid`, `datecreated`)
+					values
+						(?, ?, ?, ?, ?, ?, ?, ?, 0, now());";
+			$this->db->query($qry, array($d['odt'], $d['oln'], $d['ofn'], $d['omn'], $d['oad'], $d['ocn'], $d['oem'], $d['ogc']));
+			
+			$qry = "select count(id) as ocnt from `ca_occular_requests`
+					where `occdate` = ?
+					  and `lastname` = ?
+					  and `firstname` = ?
+					  and `visitflag` = false
+					  and `cancelflag` = false;";
+			$rs = $this->db->query($qry, array($d['odt'], $d['oln'], $d['ofn']));
+			
+			$row = $rs->row();
+			
+			if($row['ocnt'] > 0){
+				return array('flag' => true, 'mesg' => 'Occular request has been processed and saved.');
+			} else {
+				return array('flag' => false, 'mesg' => 'Error in saving request, please contact your system provider for support.');
+			}
+		}
+		
+		function cancel_occular($d){
+			$qry = "update `ca_occular_requests`
+					set `cancelflag` = true, `remarks` = ?, `modifiedbyid` = ?, `datemodified` = now()
+					where `id` = ?;";
+			$this->db->query($qry, array($d['rmk'], $this->session->udata[0]['uid'], $d['oid']));
+			return array('flag' => true, 'mesg' => 'Occular request has been cancelled.');
+		}
+		
+		function tag_occular_as_done($oid){
+			$qry = "update `ca_occular_requests`
+					set `visitflag` = true, `modifiedbyid` = ?, `datemodified` = now()
+					where `id` = ?;";
+			$this->db->query($qry, array($this->session->udata[0]['uid'], $oid));
+			return array('flag' => true, 'mesg' => 'Occular request has been served/completed.');
 		}
 		
 		function validate_credentials($data){

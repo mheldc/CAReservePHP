@@ -78,6 +78,14 @@
 			}
 		}
 		
+		function roomlist(){
+			if(isset($_GET['id'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->getroomlist($_GET['id']);			
+				echo json_encode($output);
+			}
+		}
+		
 		function roomdetails(){
 			if(isset($_GET['id'])){
 				$this->load->model('ca_model');
@@ -110,9 +118,11 @@
 		}
 		
 		function guestlist(){
-			$this->load->model('ca_model');
-			$output = $this->ca_model->getguestlist();
-			echo json_encode($output);
+			if(isset($_GET['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->getguestlist($_GET['pdata']);
+				echo json_encode($output);
+			}
 		}
 		
 		function guestinfo(){
@@ -306,5 +316,15 @@
             $this->load->helper('tcpdf_helper');
             $this->load->view('reports/receipt',$data);
         }
+	
+		function occular(){
+			$this->load->model('ca_model');
+			$output = $this->ca_model->get_occular_requests();
+			echo json_encode($output);
+		}
+		
+		function regoccular(){
+			
+		}
 	}
 ?>
