@@ -88,6 +88,38 @@
 			return $rs->result_array();
 		}
 		
+		function getsearchedbooking($data){
+			$rs = $this->db->query('select 	a.`id` as bkid,
+											concat(b.`lastname`, ", ", b.`firstname`, case length(trim(both from b.`middlename`)) when 0 then "" else concat(" ", substring(b.`middlename`,1,1),".") end )  as guestname,
+											c.`roomdesc` as room,
+											f.qty,
+											ifnull(g.bcqty, 0) as bcqty,
+											case when count(e.`ispaid`) > 0 then true else false end as unpaid,
+											case a.`isovernight` when true then 
+												case when now() >= concat(date_add(cast(substring(a.datecreated,1, 10) as date), interval 1 day), " ", d.`ovntimeout`) then true else false end
+											else
+												case when now() >= concat(cast(substring(a.datecreated,1, 10) as date), " ", d.`regtimeout`) then true else false end
+											end as timeout,
+											case 
+												when ifnull(g.bcqty, 0) < (a.`guesta` + a.`guestc` + a.`guestc2`)
+													then (a.`guesta` + a.`guestc` + a.`guestc2`) - ifnull(g.bcqty, 0)
+												else 0
+											end as bctoissue
+									from 			ca_booking 			as a
+										inner join 	ca_guest_info   	as b on a.`guestid` = b.`id`
+										inner join 	ca_rooms			as c on a.`roomid` = c.`id`
+										inner join  ca_room_rates		as d on c.`typeid` = d.`rmtypeid`
+										left  join  ca_booking_items	as e on a.`id` = e.`bkid` and e.`ispaid` = false
+										inner join  (select `bkid`, sum(`itemqty`) as qty from `ca_booking_items` where `itemtype` = 2 group by `bkid`) as f on a.`id` = f.`bkid`
+										left  join  (select `bkid`, sum(`bcid`) as bcqty from `ca_booking_guest` group by `bkid`) as g on a.`id` = g.`bkid`
+									where a.`bkstat` = true
+									  and (c.`roomdesc` like concat("%", ?, "%") or 
+										   b.`lastname` like concat("%", ?, "%") or
+										   b.`firstname` like concat("%", ?, "%"))
+									group by a.`id`, e.`ispaid`;', array($data, $data, $data));
+			return $rs->result_array();
+		}
+		
 		function addbooking($data){
 			// Add booking information
 			$booking_info = $data[0]['booking_info'];			
@@ -524,10 +556,31 @@
 			}
 		}
 		
-		function validate_credentials($data = []){
-			if(count($data) > 0 || isset($data)){
-				$rs = $this->db->query('call sp_validatecredentials(?,?)', array($data->lid, $data->lpw));
-				
+		function validate_credentials($data){
+			$counter = 0;
+			$allow_login = false;
+			$qry = 'select	a.`id` as uid, a.`loginid` as lid, a.`lastname` as lname, a.`firstname` as fname,
+					b.`allowlogin`, b.`allowbilling`, b.`allowreserve`, b.`allowinventory`, b.`allowcashier`, b.`allowsettings`
+					from 			`ca_users` 		as a
+						inner join	`ca_user_roles`	as b on a.`roleid` = b.`id`
+					where a.`loginid` = ?
+					  and a.`loginpw` = md5(?);';
+			
+			$rs = $this->db->query($qry, array($data['lid'], $data['lpw']));
+			foreach($rs->result_array() as $row){
+				$counter = $counter + 1;
+				$allow_login = $row['allowlogin'];
+				$this->session->set_userdata(array('udata' => $rs->result_array()));
+			}
+			
+			if($counter > 0){
+				if($allow_login == true){
+					return(array('flag' => true, 'mesg' => 'User validated.'));
+				} else {
+					return(array('flag' => false, 'mesg' => 'User is valid, however you don\'t have sufficient priviledge to access the system. Please contact your system administrator for assistance.'));
+				}
+			} else {
+				return(array('flag' => false, 'mesg' => 'Cannot validate user via given credentials.'));
 			}
 		}
 	}

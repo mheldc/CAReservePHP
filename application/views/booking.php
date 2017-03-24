@@ -1,5 +1,14 @@
 <?php
 	defined('BASEPATH') OR exit('No direct script access allowed');
+	$home_page = str_replace('index.php/','',base_url());
+	if($sdata['allowbilling'] == false){
+		header("Location: ". $home_page);
+	}
+	
+	if(isset($sdata['fname']) && isset($sdata['lname'])){
+		//$disp_user = $sdata['lname'].', '.$sdata['fname'];
+		$disp_user = $sdata['fname'];
+	}
 ?>
 
 <div id="wrapper">
@@ -8,12 +17,12 @@
 			<div class="form-horizontal">
 				<ul class="sidebar-nav">
 					<li class="sidebar-brand">
-						<a href="#cahome" data-toggle="tab">
+						<a href="<?php echo $home_page; ?>">
 							Costa Abrille Resort
 						</a>
 					</li>
 					<li>
-						<a href="#cahome" data-toggle="tab">Home</a>
+						<a href="<?php echo $home_page; ?>">Home</a>
 					</li>
 					<li>
 						<a href="#activebooking" data-toggle="tab" onclick="javascript:loadactivebookings();">Active Bookings</a>
@@ -21,27 +30,14 @@
 					<li>
 						<a href="#newbooking" data-toggle="tab">New Booking</a>
 					</li>
-					<li>
+					<li style="display: none;">
 						<a href="#refunds" data-toggle="tab">Refunds</a>
 					</li>
-					<li>
+					<li style="display: none;">
 						<a href="#reports" data-toggle="tab">Report Summary</a>
 					</li>
-				</ul>				
-			</div>
-			<div class="form-horizontal" style="height: 10px;">&nbsp;</div>
-			<div class="form-horizontal" style="height: 5px; position: relative;">
-				<ul class="sidebar-nav">
-					
-				</ul>
-			</div>
-			<div class="form-horizontal" style="bottom:150px; position: fixed;">
-				<ul class="sidebar-nav">
 					<li>
-						<a href="#" onclick="javascript:alert('Under Construction')">Maintenance</a>
-					</li>
-					<li style="visibility: hidden;">
-						<a href="#">Sign In</a>
+						<a href="<?php echo base_url().'ca/logout'; ?>" data-toggle="tab">Sign Out [<?php echo $disp_user; ?>]</a>
 					</li>
 				</ul>				
 			</div>
@@ -51,52 +47,20 @@
 		<!-- Page Content -->
 		<div id="page-content-wrapper">
 			<div class="tab-content">
-				<div id="cahome" class="container-fluid tab-pane fade in active">
-					<div class="row">
-						<div class="col-sm-8">
-							<img class="img-responsive img-rounded" src="./assets/img/cahome.png" alt="" style="width:900px; height: 350px;">
-						</div>
-						<div class="col-sm-4">
-							<h1>Costa Abril Resort</h1>
-							<p>Costa Abril is a resort offering overnight rooms, a water play for children, and a variety of 3 spacious pools.</p>
-							<!--<a class="btn btn-primary btn-lg" href="#">Call to Action!</a>/-->
-						</div>
-					</div>
-					<hr>
-					<div class="row">
-						<div class="col-md-4 portfolio-item">
-							<a href="#">
-								<img class="img-responsive" src="./assets/img/villa/villa-1.jpg" alt="" style="width: 350px; height: 200px;">
-							</a>
-							<h3>
-								<a href="#">Function Rooms</a>
-							</h3>
-							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
-						</div>
-						<div class="col-md-4 portfolio-item">
-							<a href="#">
-								<img class="img-responsive" src="./assets/img/villa/villa-2.jpg" alt="" style="width: 350px; height: 200px;">
-							</a>
-							<h3>
-								<a href="#">Villa</a>
-							</h3>
-							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
-						</div>
-						<div class="col-md-4 portfolio-item">
-							<a href="#">
-								<img class="img-responsive" src="./assets/img/villa/villa-3.jpg" alt="" style="width: 350px; height: 200px;">
-							</a>
-							<h3>
-								<a href="#">Standard Rooms</a>
-							</h3>
-							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
-						</div>
-					</div>
-				</div>
-				<div id="activebooking" class="container-fluid tab-pane fade">
+				<div id="activebooking" class="container-fluid tab-pane fade in active">
 					<div class="row ">
 						<h3>Active Bookings</h3><hr>
 						<!-- Booking Header /-->
+						<div class="form-horizontal" style="height: 5px;">&nbsp;</div>
+						<div class="form-horizontal">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon" id="basic-addonA1" style="width: 100px;">Find</span>
+								<input type="text" id="bksearch" class="form-control" placeholder="Type an item to search" aria-describedby="basic-addonA1" style="width: 200px;" ></input> &nbsp;
+								<button class="btn btn-default btn-sm" onclick="javascript:searchactivebookings();">Go</button>
+								<button class="btn btn-default btn-sm" onclick="javascript:resetbookingsearch();">Reset</button>
+							</div>
+						</div>
+						<div class="form-horizontal" style="height: 10px;">&nbsp;</div>
 						<div>
 							<table class="table table-condensed table-striped table-responsive" style="font-family: Calibri !important; font-size:14px !important;">
 								<thead style="border: 1px solid gray;">

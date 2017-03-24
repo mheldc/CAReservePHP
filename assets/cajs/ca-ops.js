@@ -81,7 +81,11 @@
 	// Function variables
 		rateflag 	= false,
 		srcform		= null,
-		coflag		= false;
+		coflag		= false,
+		
+	// Authentication
+		uid			= $('#userid'),
+		upw			= $('#userpw');
 
 $(function(){
 	// Reservation
@@ -89,6 +93,7 @@ $(function(){
 	$('#rEventDate').datetimepicker({format:'DD-MMM-YYYY'});
 	$('#rEventTimeStart').datetimepicker({format:'hh:mm A'});
 	$('#rEventTimeEnd').datetimepicker({format:'hh:mm A'});	
+	$('#thisisdt').datetimepicker({format:'hh:mm A'});	
 	
 	// Booking
 	$('[data-toggle="tooltip"]').tooltip();
@@ -98,12 +103,14 @@ $(function(){
 	displayitemtypes();
 	guestrates();
 	
+	/*
 	setInterval(function(){
 		if (blist.length > 0) {
 			loadactivebookings();
 		}
 	},
 	5000);
+	*/
 	
 	restype.on('change', function(){
 		if (restype.val() == 1) {
@@ -243,7 +250,7 @@ $(function(){
 			trgerr.trigger('click');
 			return false;
 		}
-		if (landline.val().length == 0 && mobile.val().length == 0 && email.val().length == 0) {
+		if (landline.val().length == 0 && mobile.val().length == 0) {
 			errmsg.empty().append('Please provide at least 1 valid contact information.');
 			trgerr.trigger('click');
 			return false;
@@ -485,10 +492,6 @@ $(function(){
 			childst2.val((parseFloat(childcnt2.val()) * parseFloat(childrate2.val())).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 			computegrates();
 		}
-	});
-	
-	fromacct.on('change', function(){
-		
 	});
 	
 	itemtype.on('change', function(){
@@ -847,6 +850,110 @@ function loadactivebookings() {
 			console.log('Done processing data');
 		}
 	});
+}
+
+function resetbookingsearch() {
+	$('#bksearch').val('');
+	loadactivebookings();
+}
+
+function searchactivebookings() {
+	if ($('#bksearch').val().length == 0) {
+		errmsg.empty().append('There is no item to search.');
+		trgerr.trigger('click');
+		return false;
+	}
+	var si = $('#bksearch');
+	
+	$.ajax({
+		url: wwwnavi + 'ca/searchbooking',
+		type: 'get',
+		data: {pdata:si.val()},
+		success: function(r){
+			var obj = JSON.parse(r);
+			blist.empty();
+			for(i = 0; i < obj.length; i++){
+				var istimeout = 'visibility:hidden;', withpayables = 'style="visibility:hidden;"', withbctoissue = 'style="visibility:hidden;"';
+				if (obj[i]['timeout'] == "1") {
+					istimeout = 'visibility:visible;';
+				}
+				
+				if (obj[i]['unpaid'] == "1") {
+					withpayables = 'style="visibility:visible;"';
+				}
+				
+				if (obj[i]['bctoissue'] > 0) {
+					withbctoissue = 'style="visibility:visible;"';
+				}
+				
+				var el = '<tr style="width:100%;">' +
+							'<!--<td class="col-sm-1">'+ obj[i]['bkid'] +'</td> /-->' +
+							'<td class="col-sm-4">'+ obj[i]['guestname'] +'</td>' +
+							'<td class="col-sm-6">'+ obj[i]['room'] +'</td>' +
+							'<td class="col-sm-2">'+ obj[i]['qty'] +'</td>' +
+							'<td class="col-sm-1">' +
+								'<a href="#" style="' + istimeout + '" onclick="javascript:precheckout('+ obj[i]['bkid'] +');">' +
+									'<span class="fa-stack faa-flash animated" style="color:red;' + istimeout + '">' +
+										'<i class="fa fa-square-o fa-stack-2x"></i>' +
+										'<i class="fa fa-clock-o fa-stack-1x"></i>' +
+									'</span>' +										
+								'</a>' +
+							'</td>' +
+							'<td class="col-sm-1">' +
+								'<a href="#" data-toggle="modal" data-target="#paymentmodal"  '+ withpayables +' onclick="javascript:loaditemsforpayment('+ obj[i]['bkid'] +');">' +
+									'<span class="fa-stack" '+ withpayables +'>' +
+										'<i class="fa fa-square-o fa-stack-2x"></i>' +
+										'<i class="fa fa-dollar fa-stack-1x"></i>' +
+									'</span>	' +									
+								'</a>' +
+							'</td>' +
+							'<td class="col-sm-1">' +
+								'<a href="#" data-toggle="modal" data-target="#addguestmodal" onclick="javascript:set_booking_id('+ obj[i]['bkid'] +');">' +
+									'<span class="fa-stack">' +
+										'<i class="fa fa-square-o fa-stack-2x"></i>' +
+										'<i class="fa fa-group fa-stack-1x"></i>' +
+									'</span>' +										
+								'</a>' +
+							'</td>' +
+							'<td class="col-sm-1">' +
+								'<a href="#" data-toggle="modal" data-target="#changeaccmodal" onclick="javascript:accomodationinfo('+ obj[i]['bkid'] +');">' +
+									'<span class="fa-stack">' +
+										'<i class="fa fa-square-o fa-stack-2x"></i>' +
+										'<i class="fa fa-home fa-stack-1x"></i>' +
+									'</span>' +										
+								'</a>' +
+							'</td>' +
+							'<td class="col-sm-1">' +
+								'<a href="#" data-toggle="modal" data-target="#guestreqmodal" onclick="javascript:set_booking_id('+ obj[i]['bkid'] +');">' +
+									'<span class="fa-stack">' +
+										'<i class="fa fa-square-o fa-stack-2x"></i>' +
+										'<i class="fa fa-paste fa-stack-1x"></i>' +
+									'</span>' +										
+								'</a>' +									
+							'</td>' +
+							'<td class="col-sm-1">' +
+								'<a href="#" data-toggle="modal" data-target="#barcodemodal" ' + withbctoissue + ' onclick="javascript:prebarcode_issuance('+ obj[i]['bkid'] +','+ obj[i]['bctoissue'] +',' + obj[i]['bcqty'] + ');">' +
+									'<span class="fa-stack">' +
+										'<i class="fa fa-square-o fa-stack-2x"></i>' +
+										'<i class="fa fa-barcode fa-stack-1x"></i>' +
+									'</span>' +										
+								'</a>' +									
+							'</td>' +
+						'</tr>';
+				blist.append(el);
+				totalbooked
+					.empty()
+					.append('Total Active bookings for the day : ' + obj.length);
+			}
+		},
+		fail: function(jqXHR, textStatus){
+			errmsg.empty().append('Error occured: ' + textStatus);
+			trgerr.trigger('click');
+		},
+		done: function(r){
+			console.log('Done processing data');
+		}
+	});	
 }
 
 function loaditemsforpayment(bid) {
@@ -1378,25 +1485,44 @@ function register_passes(d) {
 }
 
 function auth_user() {
-	userdata = {'data':{'lid':'ca-admin','lpw':'ca-admin'}};
-	requrl = wwwnavi + 'ca/login';
+	if (uid.val().length == 0 || uid.val() == undefined) {
+		errmsg.empty().append('You must supply a valid account to log into the system. Please try again.');
+		trgerr.trigger('click');
+		return false;
+	}
 	
-	console.log(requrl);
+	if (upw.val().length == 0 || upw.val() == undefined) {
+		errmsg.empty().append('You must supply a valid password to log into the system. Please try again.');
+		trgerr.trigger('click');
+		return false;
+	}
 	
 	$.ajax({
-		url: requrl,
-		type: 'post',
-		data: userdata,
-		success: function(resdata){
-			console.log(resdata);
+		url: wwwnavi + 'ca/login',
+		type: 'get',
+		data: {pdata:{'lid':uid.val(),'lpw':upw.val()}},
+		success: function(r){
+			var obj = JSON.parse(r);
+			if (obj.flag == true) {
+				//infmsg.empty().append(obj.mesg);
+				//trginf.trigger('click');
+				location.reload();
+			} else {
+				errmsg.empty().append(obj.mesg);
+				trgerr.trigger('click');
+			}
 		},
 		fail: function(jqXHR, textStatus){
 			errmsg.empty().append('Request failed : ' + textStatus);
 			trgerr.trigger('click');
 		},
-		done: function(resdata){
-			console.log('Done processing data.' + resdata);
+		done: function(r){
+			console.log('Done processing data.' + r);
 		}
 	});
+}
+
+function signoff() {
+	window.location.assign(wwwnavi + 'ca/logout');
 }
 	

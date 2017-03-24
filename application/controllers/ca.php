@@ -4,30 +4,63 @@
 	class ca extends CI_Controller
 	{
 		function index(){
+			
 			$this->load->view('header');
-			$this->load->view('booking');
+			if(isset($this->session->udata[0]['uid'])){
+				$vdata['sdata'] = $this->session->udata[0];
+				$vdata['display'] = 1;
+			} else {
+				$vdata['sdata'] = null;
+				$vdata['display'] = 0;
+			}
+			$this->load->view('main', $vdata);
 			$this->load->view('footer');
 		}
 		
 		function login(){
-			if(isset($_POST['data'])){
-				$data = $_POST['data'];
-				$this->load->model('ca');
-			
-			} else {
-				echo 'Invalid or no data sent.';
+			//$this->session->sess_destroy();
+			if(isset($_GET['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->validate_credentials($_GET['pdata']);
+				echo json_encode($output);
 			}
-			/*
-            if(isset($this->session->userid)){
-                $this->reservation();
-            } else {
-                if(isset($_POST['data'])){
-                    $this->load->model('ca');
-				   // $data = $this->ca->validate_credentials($_POST['data']);
-                    
-                }
-            }
-            */
+		}
+		
+		function logout(){
+			$this->session->sess_destroy();
+			header("Location: ". str_replace('index.php/','',base_url()));
+		}
+		
+		function booking(){
+			$this->load->view('header');
+			if(isset($this->session->udata[0]['uid'])){
+				$vdata['sdata'] = $this->session->udata[0];
+				$vdata['display'] = 1;
+				$this->load->view('booking', $vdata);
+			} else {
+				$vdata['sdata'] = null;
+				$vdata['display'] = 0;
+				$this->load->view('main', $vdata);
+			}
+			$this->load->view('footer');
+		}
+		
+		function reservation(){
+			$this->load->view('header');
+			if(isset($this->session->udata[0]['uid'])){
+				$vdata['sdata'] = $this->session->udata[0];
+				$vdata['display'] = 1;
+				$this->load->view('reservation', $vdata);
+			} else {
+				$vdata['sdata'] = null;
+				$vdata['display'] = 0;
+				$this->load->view('main', $vdata);
+			}
+			$this->load->view('footer');
+		}
+		
+		function inventory(){
+			
 		}
 		
 		function roomtypes(){
@@ -53,14 +86,18 @@
 			}
 		}
 		
-		function reservation(){
-			
-		}
-		
 		function bookings(){
 			$this->load->model('ca_model');
 			$output = $this->ca_model->getactivebookings();
 			echo json_encode($output);
+		}
+		
+		function searchbooking(){
+			if(isset($_GET['pdata'])){
+				$this->load->model('ca_model');
+				$output = $this->ca_model->getsearchedbooking($_GET['pdata']);
+				echo json_encode($output);
+			}
 		}
 		
 		function newbooking(){
